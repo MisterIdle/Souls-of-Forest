@@ -4,7 +4,10 @@ import random
 def main():
     main_menu()
 
+###################
 # Main menu
+####################
+
 def main_menu():
     clear_screen()
     print("=== Main Menu ===")
@@ -37,6 +40,10 @@ def exit_game():
     print("Exiting game...")
     exit()
 
+####################
+# GAME LOOP
+####################
+
 def gameloop():
     clear_screen()
     player.show_stats()
@@ -62,18 +69,38 @@ def gameloop():
             except ValueError:
                 print("Invalid input. Please enter a number or 'cancel'.")
     else:
+        old_x, old_y = player.x, player.y
         player.move(move.lower())
-    
+
+        # Check for enemy encounter
+        if (player.x, player.y) != (old_x, old_y):  # Check if the player moved
+            enemy_symbol = data_map[player.y][player.x]
+            if enemy_symbol == "S":
+                battle(player, Slime())
+                data_map[player.y][player.x] = "."  # Remove enemy from the map
+            elif enemy_symbol == "G":
+                battle(player, Goblin())
+                data_map[player.y][player.x] = "."  # Remove enemy from the map
+            elif enemy_symbol == "D":
+                battle(player, Dragon())
+                data_map[player.y][player.x] = "."  # Remove enemy from the map
+            else:
+                print("No enemy here.")
+
     gameloop()
 
+####################
 # Map
+####################
+
 data_map = [
-    ["#", "#", "#", "#", "#", "#", "#"],
-    ["#", "F", ".", ".", ".", "E", "#"],
-    ["#", ".", "#", ".", ".", ".", "#"],
-    ["#", ".", ".", ".", "#", ".", "#"],
-    ["#", "#", "#", "#", "#", "#", "#"]
+    ["#", "#", "#", "#", "#"],
+    ["#", ".", ".", "S", "#"],
+    ["#", "G", ".", ".", "#"],
+    ["#", ".", "D", ".", "#"],
+    ["#", "#", "#", "#", "#"],
 ]
+
 
 class Map:
     def __init__(self, data):
@@ -90,154 +117,6 @@ class Map:
         for row in map_copy:
             print(" ".join(row))
 
-# Entity
-class Entity:
-    def __init__(self, name):
-        self.name = name
-        self.hp = 100
-        self.attack = 10
-        self.defense = 5
-        self.x = 1
-        self.y = 1
-        self.inventory = {}
-
-    def getpos(self):
-        return self.x, self.y
-
-    def add_to_inventory(self, item):
-        if item.name in self.inventory:
-            self.inventory[item.name]["quantity"] += 1
-        else:
-            self.inventory[item.name] = {"item": item, "quantity": 1}
-
-    def show_inventory(self):
-        print(f"{self.name}'s Inventory:")
-        for i, (item_name, item_info) in enumerate(self.inventory.items(), 1):
-            print(f"{i}. {item_name} ({item_info['quantity']})")
-
-    def show_stats(self):
-        print(f"{self.name}'s Stats:")
-        print(f"HP: {self.hp}")
-        print(f"Attack: {self.attack}")
-        print(f"Defense: {self.defense}")
-
-    def use_item(self, item_number):
-        if 1 <= item_number <= len(self.inventory):
-            item_name = list(self.inventory.keys())[item_number - 1]
-            item_info = self.inventory[item_name]
-            item = item_info["item"]
-            item.use(self)
-            if item_info["quantity"] > 1:
-                self.inventory[item_name]["quantity"] -= 1
-            else:
-                del self.inventory[item_name]
-        else:
-            print("Invalid item number.")
-
-# Player
-class Player(Entity):
-    def __init__(self, name):
-        super().__init__(name)
-
-    def move(self, direction):
-        if (direction == "n" or direction == "z") and self.y > 0:
-            self.y -= 1
-        elif direction == "s" and self.y < len(data_map) - 1:
-            self.y += 1
-        elif (direction == "e" or direction == "d") and self.x < len(data_map[0]) - 1:
-            self.x += 1
-        elif (direction == "w" or direction == "q") and self.x > 0:
-            self.x -= 1
-
-# Enemies
-class Enemy(Entity):
-    def __init__(self, name):
-        super().__init__(name)
-
-class Slime(Enemy):
-    def __init__(self):
-        super().__init__("Slime")
-        self.hp = 50
-        self.attack = 5
-        self.defense = 2
-
-class Goblin(Enemy):
-    def __init__(self):
-        super().__init__("Goblin")
-        self.hp = 70
-        self.attack = 7
-        self.defense = 3
-
-class Dragon(Enemy):
-    def __init__(self):
-        super().__init__("Dragon")
-        self.hp = 100
-        self.attack = 15
-        self.defense = 10
-
-# Set enemies in map
-data_map[2][2] = "S"
-data_map[3][3] = "G"
-data_map[1][5] = "D"
-
-# Item system
-class Item:
-    def __init__(self, name, weight):
-        self.name = name
-        self.weight = weight
-
-    def __str__(self):
-        return self.name
-
-class Potion(Item):
-    def __init__(self, name, effect_amount, weight):
-        super().__init__(name, weight)
-        self.effect_amount = effect_amount
-
-    def use(self, target):
-        print(f"{target.name} uses {self.name}!")
-        self.apply_effect(target)
-
-    def apply_effect(self, target):
-        pass
-
-class HealthPotion(Potion):
-    def __init__(self, effect_amount):
-        super().__init__("Health Potion", effect_amount, 0.5)
-
-    def apply_effect(self, target):
-        target.hp += self.effect_amount
-        print(f"{target.name}'s HP increased by {self.effect_amount}.")
-
-class DefensePotion(Potion):
-    def __init__(self, effect_amount):
-        super().__init__("Defense Potion", effect_amount, 0.5)
-
-    def apply_effect(self, target):
-        target.defense += self.effect_amount
-        print(f"{target.name}'s Defense increased by {self.effect_amount}.")
-
-class Weapon(Item):
-    def __init__(self, name, attack_power, crit_chance, weight):
-        super().__init__(name, weight)
-        self.attack_power = attack_power
-        self.crit_chance = crit_chance
-
-    def attack(self):
-        crit = random.random() < self.crit_chance
-        damage = self.attack_power * 2 if crit else self.attack_power
-        print(f"{self.name} {'critically ' if crit else ''}hits for {damage} damage!")
-        return damage
-
-# Add items to player's inventory
-player = Player("Player")
-player.add_to_inventory(HealthPotion(30))
-player.add_to_inventory(HealthPotion(30))
-player.add_to_inventory(DefensePotion(10))
-player.add_to_inventory(Weapon("Sword", 10, 0.2, 1.36))  # 3 lbs = 1.36 kg
-player.add_to_inventory(Weapon("Dagger", 6, 0.5, 0.68))  # 1.5 lbs = 0.68 kg
-
-# Initialize the map
 game_map = Map(data_map)
 
 class Location:
@@ -265,12 +144,213 @@ def get_location(x, y):
             return Location("Unknown", "This place is unknown.")
     return Location("Unknown", "This place is unknown.")
 
-# Utils
-def clear_screen():
-    if os.name == "nt":
-        os.system("cls")
+####################
+# Battle
+####################
+
+def battle(player, enemy):
+    print(f"A wild {enemy.name} appears!")
+    while player.hp > 0 and enemy.hp > 0:
+        print("=======================")
+        print(f"{player.name}: {player.hp} HP")
+        print(f"{enemy.name}: {enemy.hp} HP")
+        print("=======================")
+
+        # Tour du joueur
+        player_turn(player, enemy)
+        
+        if enemy.hp > 0:  # Vérifie si l'ennemi est toujours en vie
+            enemy_turn(player, enemy)  # Tour de l'ennemi, stats affichées après l'attaque
+
+    # Déterminer l'issue de la bataille
+    if player.hp <= 0:
+        print(f"{player.name} has been defeated!")
+    elif enemy.hp <= 0:
+        print(f"{enemy.name} has been defeated!")
+    print("Battle ended.")
+
+def player_turn(player, enemy):
+    print("\nYour turn!")
+    print("1: Attack")
+    print("2: Use Item")
+    choice = input("What will you do? ")
+
+    if choice == "1":
+        print("Available Weapons:")
+        weapons = [item for item in player.inventory.values() if isinstance(item, Weapon)]
+        for i, weapon in enumerate(weapons):
+            print(f"{i + 1}: {weapon.name}")
+
+        weapon_choice = input("Enter the weapon number to use: ")
+        try:
+            weapon_choice = int(weapon_choice) - 1
+            weapon = weapons[weapon_choice]
+            damage = weapon.attack()
+            enemy.hp -= damage
+            print(f"You attack {enemy.name} for {damage} damage!")
+            print(f"{enemy.name} has {enemy.hp} HP left!")
+        except (ValueError, IndexError):
+            print("Invalid weapon choice.")
+            battle(player, enemy)
+
+    elif choice == "2":
+        print("Usable Items:")
+        items = [item for item in player.inventory.values() if isinstance(item, Potion)]
+        for i, item in enumerate(items):
+            print(f"{i + 1}: {item.name}")
+
+        item_choice = input("Enter the item number to use: ")
+        try:
+            item_choice = int(item_choice) - 1
+            item = items[item_choice]
+            item.use(player)
+            print(f"{player.name} uses {item.name}. Current HP: {player.hp}")
+        except (ValueError, IndexError):
+            print("Invalid item choice.")
+            battle(player, enemy)
     else:
-        os.system("clear")
+        print("Invalid choice. Please try again.")
+        battle(player, enemy)
+
+def enemy_turn(player, enemy):
+    damage = 5  # Exemple de dégâts infligés par l'ennemi
+    player.hp -= damage
+    print(f"{enemy.name}'s turn!")
+    print(f"{enemy.name} attacks {player.name} for {damage} damage! {player.name} has {player.hp} HP left.")
+
+####################
+# Entity
+####################
+
+class Entity:
+    def __init__(self, name):
+        self.name = name
+        self.hp = 100
+        self.attack = 10
+        self.defense = 5
+        self.x = 1
+        self.y = 1
+        self.inventory = {}
+
+    def show_stats(self):
+        print("=======================")
+        print(f"Name: {self.name}")
+        print(f"HP: {self.hp}")
+        print(f"Attack: {self.attack}")
+        print(f"Defense: {self.defense}")
+        print("=======================")
+
+    def getpos(self):
+        return self.x, self.y
+
+####################
+# Player
+####################
+
+class Player(Entity):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def show_inventory(self):
+        print("Inventory:")
+        for i, item in enumerate(self.inventory.values()):
+            print(f"{i + 1}: {item}")
+
+    def show_usable_items(self):
+        print("Usable Items:")
+        usable_items = [item for item in self.inventory.values() if isinstance(item, Potion)]
+        for i, item in enumerate(usable_items):
+            print(f"{i + 1}: {item.name}")
+
+    def add_to_inventory(self, item):
+        self.inventory[item.name] = item
+
+    def remove_from_inventory(self, item_name):
+        del self.inventory[item_name]
+
+    def use_item(self, item_number):
+        try:
+            item = list(self.inventory.values())[item_number - 1]
+            if isinstance(item, Potion):
+                item.use(self)
+                del self.inventory[item.name]
+            else:
+                print("You can't use that item.")
+        except IndexError:
+            print("Invalid item number. Please try again.")
+
+    def move(self, direction):
+        if (direction == "n" or direction == "z") and self.y > 0:
+            self.y -= 1
+        elif direction == "s" and self.y < len(data_map) - 1:
+            self.y += 1
+        elif (direction == "e" or direction == "d") and self.x < len(data_map[0]) - 1:
+            self.x += 1
+        elif (direction == "w" or direction == "q") and self.x > 0:
+            self.x -= 1
+        else:
+            print("You can't move in that direction.")
+
+####################
+# Enemy
+####################
+
+class Enemy(Entity):
+    def __init__(self, name, attack):
+        super().__init__(name)
+        self.attack = attack
+
+class Slime(Enemy):
+    def __init__(self):
+        super().__init__("Slime", attack=5)
+
+class Goblin(Enemy):
+    def __init__(self):
+        super().__init__("Goblin", attack=10)
+
+class Dragon(Enemy):
+    def __init__(self):
+        super().__init__("Dragon", attack=20)
+
+####################
+# Item
+####################
+
+class Item:
+    def __init__(self, name):
+        self.name = name
+
+class Weapon(Item):
+    def __init__(self, name, attack_power):
+        super().__init__(name)
+        self.attack_power = attack_power
+
+    def attack(self):
+        return self.attack_power
+
+class Potion(Item):
+    def __init__(self, name, healing_amount):
+        super().__init__(name)
+        self.healing_amount = healing_amount
+
+    def use(self, player):
+        player.hp += self.healing_amount
+        print(f"{player.name} heals for {self.healing_amount} HP!")
+
+####################
+# Player instance
+####################
+
+player = Player("Hero")
+player.add_to_inventory(Weapon("Sword", 15))
+player.add_to_inventory(Potion("Health Potion", 20))
+
+####################
+# Utility functions
+####################
+
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 if __name__ == "__main__":
     main()
