@@ -28,7 +28,20 @@ def main_menu():
         main_menu()
 
 def new_game():
-    print("Starting new game...")
+    global player, current_map
+
+    player_name = input("Enter your name: ")
+    player = Player(player_name)
+
+    player.add_to_inventory(Sword())
+    player.add_to_inventory(HealthPotion())
+    player.current_map_name = "forest"
+
+    current_map = Map(data_maps[player.current_map_name])
+
+    print(f"Welcome, {player_name}!")
+    input("Press Enter to continue...")
+
     gameloop()
 
 def load_game():
@@ -46,78 +59,87 @@ def exit_game():
 
 def gameloop():
     clear_screen()
+
+    # Stats
     player.show_stats()
-    location = get_location(player.x, player.y)
-    location.show_info()
-    game_map.show()
-    print("=======================")
+
+    # Inventory
     player.show_inventory()
-    print("=======================")
-    print("1: Use Item")
-    print("Move: Z/Q/S/D or N/S/E/W")
 
-    move = input("What is the next move: ")
+    # Location
+    current_location = get_location(player.x, player.y)
+    current_location.show_info()
 
-    if move == "1":
-        item_number = input("Enter the item number to use (or type 'cancel' to go back): ")
-        if item_number.lower() == 'cancel':
-            print("Cancelled item usage.")
-        else:
-            try:
-                item_number = int(item_number)
-                player.use_item(item_number)
-            except ValueError:
-                print("Invalid input. Please enter a number or 'cancel'.")
+    # Debug show map
+    current_map.show(player.x, player.y)
+
+    # Surroundings
+    show_surroundings(player.x, player.y)
+
+    # Error message
+    show_error_message()
+
+    # Actions
+    print("# Would you like to: <look>? <use>? <quit>?")
+    action = input("> ")
+
+    if action == "look":
+        current_location.show_info()
+    elif action == "z" or action == "q" or action == "s" or action == "d" or action == "n" or action == "e" or action == "w":
+        player.move(action)
+    elif action == "use":
+        clear_screen()
+        player.show_inventory()
+        item_number = int(input("Enter the item number to use: "))
+        player.use_item(item_number)
+    elif action == "quit":
+        main_menu()
     else:
-        old_x, old_y = player.x, player.y
-        player.move(move.lower())
-
-        # Check for enemy encounter
-        if (player.x, player.y) != (old_x, old_y):  # Check if the player moved
-            enemy_symbol = data_map[player.y][player.x]
-            if enemy_symbol == "S":
-                battle(player, Slime())
-                data_map[player.y][player.x] = "."  # Remove enemy from the map
-            elif enemy_symbol == "G":
-                battle(player, Goblin())
-                data_map[player.y][player.x] = "."  # Remove enemy from the map
-            elif enemy_symbol == "D":
-                battle(player, Dragon())
-                data_map[player.y][player.x] = "."  # Remove enemy from the map
-            else:
-                print("No enemy here.")
+        change_message("Invalid action. Please try again.")
 
     gameloop()
+
 
 ####################
 # Map
 ####################
 
-data_map = [
-    ["#", "#", "#", "#", "#"],
-    ["#", ".", ".", "S", "#"],
-    ["#", "G", ".", ".", "#"],
-    ["#", ".", "D", ".", "#"],
-    ["#", "#", "#", "#", "#"],
-]
+data_maps = {
+    "forest": [
+        ["F", "F", "F", "F", "F"],
+        ["F", "F", "F", "F", "F"],
+        ["F", "F", "F", "F", "F"],
+        ["F", "F", "F", "F", "F"],
+        ["F", "F", "F", "F", "F"],
+    ],
 
+    "cave": [
+        ["C", "C", "C", "C", "C"],
+        ["C", "C", "C", "C", "C"],
+        ["C", "C", "C", "C", "C"],
+        ["C", "C", "C", "C", "C"],
+        ["C", "C", "C", "C", "C"],
+    ],
+}
 
 class Map:
     def __init__(self, data):
         self.data = data
 
-    def show(self):
+    def show(self, player_x, player_y):
         map_copy = [row[:] for row in self.data]
-        
-        px, py = player.getpos()
-        
-        if 0 <= py < len(map_copy) and 0 <= px < len(map_copy[0]):
-            map_copy[py][px] = "@"
+
+        for y in range(len(map_copy)):
+            for x in range(len(map_copy[0])):
+                distance = abs(player_x - x) + abs(player_y - y)
+                if distance > 5:
+                    map_copy[y][x] = ' '
+
+        if 0 <= player_y < len(map_copy) and 0 <= player_x < len(map_copy[0]):
+            map_copy[player_y][player_x] = '@'
 
         for row in map_copy:
             print(" ".join(row))
-
-game_map = Map(data_map)
 
 class Location:
     def __init__(self, name, description):
@@ -125,98 +147,83 @@ class Location:
         self.description = description
 
     def show_info(self):
-        print("=======================")
-        print(f"Location: {self.name}")
-        print("=======================")
-        print(self.description)
-        print("=======================")
+        name = f" {self.name} "
+        border = "+" + "~" * (len(name) + 2) + "+"
+        
+        print()
+        print((YELLOW) + border + (RESET))
+        print(f"| {name} |")
+        print((YELLOW) + border + (RESET))
+        print("# " + self.description)
+        print()
+
 
 class Forest(Location):
     def __init__(self):
-        super().__init__("Forest", "Oh là là, cela fait peur ici!")
+        super().__init__("Forest", "You are in a dense forest filled with trees.")
+
+class Cave(Location):
+    def __init__(self):
+        super().__init__("Cave", "You are in a dark, damp cave.")
+
+class Teleporter(Location):
+    def __init__(self, current_map, x, y, destination_map, dest_x, dest_y):
+        super().__init__("Teleporter", "A mystical portal.")
+        self.current_map = current_map
+        self.x = x
+        self.y = y
+        self.destination_map = destination_map
+        self.dest_x = dest_x
+        self.dest_y = dest_y
+
+    def teleport(self, player):
+        player.current_map_name = self.destination_map
+        player.x = self.dest_x
+        player.y = self.dest_y
+        print(f"You have been teleported to {self.destination_map} at position ({self.dest_x}, {self.dest_y}).")
+
+    @classmethod
+    def place_teleport(cls, current_map, x, y, destination_map, dest_x, dest_y):
+        if current_map in data_maps and \
+           0 <= y < len(data_maps[current_map]) and \
+           0 <= x < len(data_maps[current_map][y]):
+            data_maps[current_map][y][x] = "T"
+            teleporter = cls(current_map, x, y, destination_map, dest_x, dest_y)
+            print(f"Teleporter placed at {current_map} ({x}, {y}) leading to {destination_map} ({dest_x}, {dest_y}).")
+            return teleporter
+        else:
+            print("Invalid coordinates for placing the teleporter.")
+            return None
 
 def get_location(x, y):
-    if 0 <= y < len(data_map) and 0 <= x < len(data_map[0]):
-        location_symbol = data_map[y][x]
-        if location_symbol == "F":
-            return Forest()
-        else:
-            return Location("Unknown", "This place is unknown.")
-    return Location("Unknown", "This place is unknown.")
+    location = data_maps[player.current_map_name][y][x]
+    if location == "F":
+        return Forest()
+    elif location == "C":
+        return Cave()
+    elif location == "T":
+        return Teleporter("forest", 1, 1)
+    else:
+        return Location("Unknown", "You are in an unknown location.")
+
+def show_surroundings(x, y):
+    directions = {
+        "NORTH": (x, y - 1),
+        "SOUTH": (x, y + 1),
+        "EAST": (x + 1, y),
+        "WEST": (x - 1, y)
+    }
+    
+    print("Surroundings:")
+    for direction, (new_x, new_y) in directions.items():
+        if 0 <= new_y < len(data_maps[player.current_map_name]) and 0 <= new_x < len(data_maps[player.current_map_name][0]):
+            location = get_location(new_x, new_y)
+            print(f"{direction}: {location.name}")
+
 
 ####################
 # Battle
 ####################
-
-def battle(player, enemy):
-    print(f"A wild {enemy.name} appears!")
-    while player.hp > 0 and enemy.hp > 0:
-        print("=======================")
-        print(f"{player.name}: {player.hp} HP")
-        print(f"{enemy.name}: {enemy.hp} HP")
-        print("=======================")
-
-        # Tour du joueur
-        player_turn(player, enemy)
-        
-        if enemy.hp > 0:  # Vérifie si l'ennemi est toujours en vie
-            enemy_turn(player, enemy)  # Tour de l'ennemi, stats affichées après l'attaque
-
-    # Déterminer l'issue de la bataille
-    if player.hp <= 0:
-        print(f"{player.name} has been defeated!")
-    elif enemy.hp <= 0:
-        print(f"{enemy.name} has been defeated!")
-    print("Battle ended.")
-
-def player_turn(player, enemy):
-    print("\nYour turn!")
-    print("1: Attack")
-    print("2: Use Item")
-    choice = input("What will you do? ")
-
-    if choice == "1":
-        print("Available Weapons:")
-        weapons = [item for item in player.inventory.values() if isinstance(item, Weapon)]
-        for i, weapon in enumerate(weapons):
-            print(f"{i + 1}: {weapon.name}")
-
-        weapon_choice = input("Enter the weapon number to use: ")
-        try:
-            weapon_choice = int(weapon_choice) - 1
-            weapon = weapons[weapon_choice]
-            damage = weapon.attack()
-            enemy.hp -= damage
-            print(f"You attack {enemy.name} for {damage} damage!")
-            print(f"{enemy.name} has {enemy.hp} HP left!")
-        except (ValueError, IndexError):
-            print("Invalid weapon choice.")
-            battle(player, enemy)
-
-    elif choice == "2":
-        print("Usable Items:")
-        items = [item for item in player.inventory.values() if isinstance(item, Potion)]
-        for i, item in enumerate(items):
-            print(f"{i + 1}: {item.name}")
-
-        item_choice = input("Enter the item number to use: ")
-        try:
-            item_choice = int(item_choice) - 1
-            item = items[item_choice]
-            item.use(player)
-            print(f"{player.name} uses {item.name}. Current HP: {player.hp}")
-        except (ValueError, IndexError):
-            print("Invalid item choice.")
-            battle(player, enemy)
-    else:
-        print("Invalid choice. Please try again.")
-        battle(player, enemy)
-
-def enemy_turn(player, enemy):
-    damage = 5  # Exemple de dégâts infligés par l'ennemi
-    player.hp -= damage
-    print(f"{enemy.name}'s turn!")
-    print(f"{enemy.name} attacks {player.name} for {damage} damage! {player.name} has {player.hp} HP left.")
 
 ####################
 # Entity
@@ -233,13 +240,12 @@ class Entity:
         self.inventory = {}
 
     def show_stats(self):
-        print("=======================")
-        print(f"Name: {self.name}")
+        print((GREEN) + f"=== {self.name}'s stats ===" + (RESET))
         print(f"HP: {self.hp}")
         print(f"Attack: {self.attack}")
         print(f"Defense: {self.defense}")
-        print("=======================")
-
+        print()
+        
     def getpos(self):
         return self.x, self.y
 
@@ -250,46 +256,75 @@ class Entity:
 class Player(Entity):
     def __init__(self, name):
         super().__init__(name)
+        self.inventory = {}
+        self.current_map_name = "forest"
 
     def show_inventory(self):
-        print("Inventory:")
-        for i, item in enumerate(self.inventory.values()):
-            print(f"{i + 1}: {item}")
-
-    def show_usable_items(self):
-        print("Usable Items:")
-        usable_items = [item for item in self.inventory.values() if isinstance(item, Potion)]
-        for i, item in enumerate(usable_items):
-            print(f"{i + 1}: {item.name}")
+        print("  [INVENTORY]  ")
+        for i, item_name in enumerate(self.inventory):
+            item = self.inventory[item_name]
+            if not isinstance(item, Weapon):
+                print(f"{i + 1}. {item} ({item.count})")
+            else:
+                print(f"{i + 1}. {item}")
 
     def add_to_inventory(self, item):
-        self.inventory[item.name] = item
+        if item.name in self.inventory:
+            self.inventory[item.name].count += 1
+        else:
+            self.inventory[item.name] = item
 
     def remove_from_inventory(self, item_name):
-        del self.inventory[item_name]
+        if item_name in self.inventory:
+            self.inventory[item_name].count -= 1
+            if self.inventory[item_name].count <= 0:
+                del self.inventory[item_name]
 
     def use_item(self, item_number):
         try:
-            item = list(self.inventory.values())[item_number - 1]
-            if isinstance(item, Potion):
-                item.use(self)
-                del self.inventory[item.name]
+            item_name = list(self.inventory.keys())[item_number - 1]
+            item_object = self.inventory[item_name]
+
+            if isinstance(item_object, Weapon):
+                print("You can't use a weapon.")
+            elif isinstance(item_object, Potion):
+                item_object.use(self)
+                self.remove_from_inventory(item_name)
+            elif isinstance(item_object, Sort):
+                item_object.use(self)
+                self.remove_from_inventory(item_name)
             else:
                 print("You can't use that item.")
         except IndexError:
             print("Invalid item number. Please try again.")
 
+
     def move(self, direction):
-        if (direction == "n" or direction == "z") and self.y > 0:
-            self.y -= 1
-        elif direction == "s" and self.y < len(data_map) - 1:
-            self.y += 1
-        elif (direction == "e" or direction == "d") and self.x < len(data_map[0]) - 1:
-            self.x += 1
-        elif (direction == "w" or direction == "q") and self.x > 0:
-            self.x -= 1
+        dx, dy = 0, 0
+
+        if direction == "z" or direction == "n":
+            dy = -1
+        elif direction == "s":
+            dy = 1
+        elif direction == "q" or direction == "w":
+            dx = -1
+        elif direction == "d" or direction == "e":
+            dx = 1
+
+        new_x = self.x + dx
+        new_y = self.y + dy
+
+        if 0 <= new_y < len(data_maps[self.current_map_name]) and 0 <= new_x < len(data_maps[self.current_map_name][0]):
+            location = get_location(new_x, new_y)
+            if isinstance(location, Teleporter):
+                location.teleport(self, current_map, new_x, new_y)
+            elif location.name == "Unknown":
+                change_message("You can't move there.")
+            else:
+                self.x = new_x
+                self.y = new_y
         else:
-            print("You can't move in that direction.")
+            change_message("You can't move there.")
 
 ####################
 # Enemy
@@ -319,35 +354,108 @@ class Dragon(Enemy):
 class Item:
     def __init__(self, name):
         self.name = name
+        self.count = 1
+
+    def __str__(self):
+        return self.name
+
+####################
+# Weapon
+####################
 
 class Weapon(Item):
     def __init__(self, name, attack_power):
         super().__init__(name)
         self.attack_power = attack_power
 
+    def __str__(self):
+        return f"{self.name} ({self.attack_power} AP)"
+
     def attack(self):
         return self.attack_power
+    
+class Sword(Weapon):
+    def __init__(self):
+        super().__init__("Sword", attack_power=10)
+
+class Axe(Weapon):
+    def __init__(self):
+        super().__init__("Axe", attack_power=15)
+
+class Bow(Weapon):
+    def __init__(self):
+        super().__init__("Bow", attack_power=20)
+
+####################
+# Potion
+####################
 
 class Potion(Item):
-    def __init__(self, name, healing_amount):
+    def __init__(self, name):
         super().__init__(name)
-        self.healing_amount = healing_amount
 
-    def use(self, player):
-        player.hp += self.healing_amount
-        print(f"{player.name} heals for {self.healing_amount} HP!")
+    def __str__(self):
+        return self.name
+
+class HealthPotion(Potion):
+    def __init__(self):
+        super().__init__("Health Potion")
+
+    def use(self, entity):
+        entity.hp += 20
+        print(f"{entity.name} used {self.name} and gained 20 HP.")
+
+class DefensePotion(Potion):
+    def __init__(self):
+        super().__init__("Defense Potion")
+
+    def use(self, entity):
+        entity.defense += 5
+        print(f"{entity.name} used {self.name} and gained 5 defense.")
 
 ####################
-# Player instance
+# SORT
 ####################
 
-player = Player("Hero")
-player.add_to_inventory(Weapon("Sword", 15))
-player.add_to_inventory(Potion("Health Potion", 20))
+class Sort(Item):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def __str__(self):
+        return self.name
+    
+class MapSort(Sort):
+    def __init__(self):
+        super().__init__("Map Sort")
+
+    def use(self, entity):
+        clear_screen()
+        print("You used the Map Sort and revealed the map.")
+        current_map.show(player.x, player.y)
+        input("Press Enter to continue...")
 
 ####################
 # Utility functions
 ####################
+
+RESET = "\033[0m"
+YELLOW = "\033[33m"
+GREEN = "\033[32m"
+RED = "\033[31m"
+
+err_message = ""
+
+def change_message(new_message):
+    global err_message
+    err_message = new_message
+
+def show_error_message():
+    global err_message
+    if err_message:
+        print()
+        print((RED) + err_message + (RESET))
+        print()
+        err_message = ""
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
