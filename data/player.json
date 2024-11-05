@@ -1,0 +1,12 @@
+{
+    "name": "Player",
+    "level": 1,
+    "experience": 0,
+    "health": 100,
+    "maxHealth": 100,
+    "attack": 10,
+    "defense": 5,
+    "gold": 0,
+    "inventory": [],
+    "position": [0, 0]
+}

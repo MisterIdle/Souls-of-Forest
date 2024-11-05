@@ -1,0 +1,45 @@
+{
+    "items": {
+        "weapon": {
+            "knife": {
+                "name": "Knife",
+                "damage": 5,
+                "critical": 10,
+                "description": "A basic knife"
+            },
+
+            "sword": {
+                "name": "Sword",
+                "damage": 10,
+                "critical": 20,
+                "description": "A basic sword"
+            },
+
+            "axe": {
+                "name": "Axe",
+                "damage": 15,
+                "critical": 30,
+                "description": "A basic axe"
+            }
+        },
+
+        "armor": {
+            "helmet": {
+                "name": "Helmet",
+                "defense": 5
+            },
+            "chestplate": {
+                "name": "Chestplate",
+                "defense": 10
+            }
+        },
+
+        "potion": {
+            "health": {
+                "name": "Health Potion",
+                "description": "Heals 10 health points",
+                "heal": 10
+            }
+        }
+    }
+}
