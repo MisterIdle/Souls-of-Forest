@@ -60,7 +60,13 @@ def new_game():
     player = Player(current_map)
 
     player.add_item(Knife())
+    player.add_item(Knife())
+    player.add_item(Sword())
+    player.add_item(Axe())
     player.add_item(HealthPotion())
+    player.add_item(HealthPotion())
+    player.add_item(HealthPotion())
+    player.add_item(DefensePotion())
 
     print("New game created.")
     gameloop()
@@ -75,6 +81,7 @@ def credits():
     print("Ascii art by:")
     print("- Tombstones by Hayley Jane Wakenshaw")
     print("- Tree by jg")
+    print("- Tree by ejm96")
     input("Press Enter to continue...")
     main_menu()
 
@@ -94,10 +101,12 @@ def gameloop():
 
     while is_running:
         clear_screen()
+        current_map.display_map()
         player.display_stats()
+        current_map.show_compass()
         text_manager.print_line()
 
-        print("# Would you like to: <save> <bag> <exit>")
+        print("\n # Would you like to: <save> <bag> <exit>")
         choice = input("> ")
 
         if choice in ["q", "d", "z", "s", "n", "e", "w"]: 
@@ -107,14 +116,7 @@ def gameloop():
             print("Game saved.")
         elif choice == "bag":
             clear_screen()
-            player.display_inventory(detailed=True)
-            item_choice = input("Enter the number of the item you want to use or press any other key to cancel: ")
-
-            if item_choice.isdigit() and 1 <= int(item_choice) <= len(player.inventory):
-                item = player.inventory[int(item_choice) - 1]
-                item.use()
-            else:
-                print("Action cancelled.")
+            player.display_inventory()
         elif choice == "exit":
             is_running = False
         else:
@@ -152,7 +154,15 @@ class Map:
     def get_name(self):
         return self.current_map_name
     
-    def get_description(self):
+    def get_tite_name(self):
+        player_x, player_y = player.get_pos()
+        tite_type = self.current_map[player_y][player_x]
+        if tite_type in self.tiles:
+            return self.tiles[tite_type]["name"]
+        else:
+            return "No name available."
+    
+    def get_tite_description(self):
         player_x, player_y = player.get_pos()
         tite_type = self.current_map[player_y][player_x]
         if tite_type in self.tiles:
@@ -160,6 +170,48 @@ class Map:
         else:
             return "No description available."
         
+    def display_map(self):
+        print("MAP: [" + self.current_map_name + "]")
+        print("# " + self.get_tite_name())
+        print("# " + self.get_tite_description())
+        print()
+        try:
+            print(load_ascii_art(self.get_tite_name().lower()))
+        except FileNotFoundError:
+            print("No image available.")
+        print()
+
+    def show_compass(self):
+        directions = {
+            "NORTH": (0, -1),
+            "WEST": (-1, 0),
+            "EAST": (1, 0),
+            "SOUTH": (0, 1)
+        }
+    
+        player_x, player_y = player.get_pos()
+    
+        compass = {"NORTH": "Out of bounds", "WEST": "Out of bounds", "EAST": "Out of bounds", "SOUTH": "Out of bounds"}
+    
+        for direction, (dx, dy) in directions.items():
+            adjacent_x = player_x + dx
+            adjacent_y = player_y + dy
+    
+            if 0 <= adjacent_y < len(self.current_map) and 0 <= adjacent_x < len(self.current_map[0]):
+                tile_type = self.current_map[adjacent_y][adjacent_x]
+                compass[direction] = self.tiles[tile_type]["name"]
+    
+        # Afficher la boussole formatée
+        text_manager.print_center("Compass")
+        text_manager.print_line()
+        text_manager.print_center(f"NORTH (N/Z)")
+        text_manager.print_center(f"{compass['NORTH']}")
+        text_manager.print_both(f"WEST (Q)", f"EAST (D)")
+        text_manager.print_both(f"{compass['WEST']}", f"{compass['EAST']}")
+        text_manager.print_center(f"SOUTH (S)")
+        text_manager.print_center(f"{compass['SOUTH']}")
+
+
     def teleport(self):
         print("Available destinations:")
         destination_names = list(self.teleport_destinations.keys())
@@ -227,17 +279,40 @@ class Player(Entity):
         self.map_instance = map_instance
 
     def display_stats(self):
-        print("Name:", self.name)
-        print("HP:", (GREEN), self.health, (RESET), " ATK:", self.attack, " DEF:", self.defense, " GOLD:", (YELLOW), self.gold, (RESET), "\n")
+        text_manager.print_center("Player Stats")
+        text_manager.print_left("Name: " + self.name)
+        text_manager.print_left("HP: " + str(self.health) +  " ATK: " + str(self.attack) +" DEF: " + str(self.defense))
+        print()
 
-    def display_inventory(self, detailed=False):
-        print("Inventory:")
+    def display_inventory(self):
+        self.display_stats()
+        text_manager.print_center("Inventory")
+        text_manager.print_line()
+
+        # Print only weapons
         for index, item in enumerate(self.inventory, start=1):
-            print(f"{index}. {item.name} x{item.quantity}")
-
-            if detailed:
-                print(item.description)
+            if isinstance(item, Weapon):
+                text_manager.print_left(f"{index}. {item.name} ({item.quantity})")
+                text_manager.print_left(f"# {item.description}")
+                text_manager.print_right(f"Damage: {item.damage} | Critical: {item.critical}% | {item.kilograms}kg")
                 print()
+
+        # Print only potions
+        for index, item in enumerate(self.inventory, start=1):
+            if isinstance(item, Potion):
+                text_manager.print_left(f"{index}. {item.name} ({item.quantity})")
+                text_manager.print_left(f"# {item.description}")
+                text_manager.print_right(f"{item.kilograms}kg")
+                print()
+                
+        print("\n # Choose an item to use or press any other key to close the inventory.")
+        item_choice = input("> ")
+
+        if item_choice.isdigit() and 1 <= int(item_choice) <= len(self.inventory):
+            item = self.inventory[int(item_choice) - 1]
+            item.use()
+        else:
+            print("Inventory closed.")
 
     def move(self, direction):
         x, y = self.get_pos()
@@ -279,10 +354,11 @@ with open("data/items.json", encoding='utf-8') as f:
     items_data = json.load(f)
 
 class Item:
-    def __init__(self, name, description, quantity=1):
+    def __init__(self, name, description, quantity=1, kilograms=0):
         self.name = name
         self.description = description
         self.quantity = quantity
+        self.kilograms = kilograms
 
     def use(self):
         print(f"{self.name} used.")
@@ -311,10 +387,11 @@ class Item:
 ####################
 
 class Weapon(Item):
-    def __init__(self, name, description, damage, critical=0):
+    def __init__(self, name, description, damage, critical=0, kilograms=0):
         super().__init__(name, description)
         self.damage = damage
-        self.critical = critical 
+        self.critical = critical
+        self.kilograms = kilograms
 
     def get_critical(self):
         return self.critical 
@@ -322,36 +399,47 @@ class Weapon(Item):
 class Knife(Weapon):
     def __init__(self):
         data = items_data["items"]["weapon"]["knife"]
-        super().__init__(data["name"], data["description"], data["damage"], data["critical"])
+        super().__init__(data["name"], data["description"], data["damage"], data["critical"], data["kilograms"])
 
 class Sword(Weapon):
     def __init__(self):
         data = items_data["items"]["weapon"]["sword"]
-        super().__init__(data["name"], data["description"], data["damage"], data["critical"])
+        super().__init__(data["name"], data["description"], data["damage"], data["critical"], data["kilograms"])
 
 class Axe(Weapon):
     def __init__(self):
         data = items_data["items"]["weapon"]["axe"]
-        super().__init__(data["name"], data.get("description", "An axe"), data["damage"], data["critical"])
+        super().__init__(data["name"], data["description"], data["damage"], data["critical"], data["kilograms"])
 
 ####################
 # Potions
 ####################
 
 class Potion(Item):
-    def __init__(self, name, description):
+    def __init__(self, name, description, kilograms=0):
         super().__init__(name, description)
+        self.kilograms = kilograms
 
 
 class HealthPotion(Potion):
     def __init__(self):
         data = items_data["items"]["potion"]["health"]
-        super().__init__(data["name"], data["description"])
+        super().__init__(data["name"], data["description"], data["kilograms"])
 
     def activate_effect(self):
         heal_amount = items_data["items"]["potion"]["health"]["heal"]
         player.health += heal_amount
         print(f"{self.name} used! You healed {heal_amount} health points.")
+
+class DefensePotion(Potion):
+    def __init__(self):
+        data = items_data["items"]["potion"]["defense"]
+        super().__init__(data["name"], data["description"], data["kilograms"])
+
+    def activate_effect(self):
+        defense_boost = items_data["items"]["potion"]["defense"]["boost"]
+        player.defense += defense_boost
+        print(f"{self.name} used! Your defense increased by {defense_boost} points.")
 
 ####################
 # Text Manager
@@ -367,6 +455,18 @@ class TextManager:
 
     def print_line(self):
         print("+" + "-" * max_width + "+")
+
+    def print_center(self, text):
+        print(text.center(max_width))
+
+    def print_left(self, text):
+        print(text.ljust(max_width))
+
+    def print_right(self, text):
+        print(text.rjust(max_width))
+
+    def print_both(self, left_text, right_text):
+        print(left_text.ljust(max_width // 2) + right_text.rjust(max_width // 2))
 
 text_manager = TextManager()
 

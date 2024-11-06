@@ -1,12 +1,17 @@
 {
     "tiles": {
         "F": {
+            "name": "Forest",
             "description": "You are in a forest. There are trees all around you."
+        },
+        "C": {
+            "name": "Cave",
+            "description": "You are in a cave. It is dark and damp."
         }
     },
     
     "maps": {
-        "forest": {
+        "Lost": {
             "tiles": [
                 ["F", "C", "F"],
                 ["F", "C", "F"],
