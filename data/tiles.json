@@ -1,20 +1,7 @@
 {
     "tiles": {
         "F": {
-            "class": "Forest",
-            "description": "A dense forest."
-        },
-        "C": {
-            "class": "Cave",
-            "description": "A dark cave."
-        },
-        "D": {
-            "class": "Desert",
-            "description": "A vast desert."
-        },
-        "T": {
-            "class": "Teleporter",
-            "description": "A magical teleporter that takes you to another map."
+            "description": "You are in a forest. There are trees all around you."
         }
     },
     

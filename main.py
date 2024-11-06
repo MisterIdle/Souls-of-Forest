@@ -9,9 +9,18 @@ RED = "\033[31m"
 player = None
 current_map = None
 max_width = 40
-max_height = 20 
 
 def main():
+    splash_screen()
+
+####################
+# Intro
+####################
+
+def splash_screen():
+    clear_screen()
+    print(load_ascii_art("splash"))
+    input("Press Enter to continue...")
     main_menu()
 
 ###################
@@ -20,10 +29,16 @@ def main():
 
 def main_menu():
     clear_screen()
-    print("=== Main Menu ===")
-    print("1. New Game")
-    print("2. Load Game")
-    print("3. Exit")
+    print(load_ascii_art("title"))
+    text_manager.print_line()
+
+    print("[1] New game")
+    print("[2] Continue")
+    print("[3] Credits")
+
+    print("[X] Exit")
+
+    text_manager.print_line()
 
     choice = input("Enter choice: ")
 
@@ -32,6 +47,8 @@ def main_menu():
     elif choice == "2":
         load_game()
     elif choice == "3":
+        credits()
+    elif choice.lower() == "x":
         exit_game()
     else:
         print("Invalid choice. Please try again.")
@@ -39,21 +56,8 @@ def main_menu():
 
 def new_game():
     global player, current_map
-
-    if not os.path.exists("saves"):
-        os.makedirs("saves")
-
-    save_file = input("Enter a name for your game: ") + ".json"
-
-    while os.path.exists(os.path.join("saves", save_file)) or save_file == ".json":
-        if os.path.exists(os.path.join("saves", save_file)):
-            print("Save file already exists. Please choose another name.")
-        else:
-            print("Invalid name. Please try again.")
-        save_file = input("Enter a name for your game: ") + ".json"
-    
     current_map = Map(data_maps)
-    player = Player(current_map, save_file)
+    player = Player(current_map)
 
     player.add_item(Knife())
     player.add_item(HealthPotion())
@@ -62,31 +66,17 @@ def new_game():
     gameloop()
 
 def load_game():
-    global player, current_map
-    save_files = os.listdir("saves")
-    if not save_files:
-        print("No save files found.")
-        main_menu()
-        input("Press Enter to continue...")
-    
-    print("Save files:")
-    for index, save_file in enumerate(save_files, start=1):
-        print(f"{index}. {save_file}")
+    print("Available save files:")
+    main_menu()
 
-    choice = input("Enter the number of the save file you want to load or press 'q' to go back: ")
-
-    if choice.isdigit() and 1 <= int(choice) <= len(save_files):
-        save_file = save_files[int(choice) - 1]
-        current_map = Map(data_maps)
-        player = Player(current_map, save_file)
-        print("Game loaded.")
-        gameloop()
-    elif choice.lower() == "q":
-        main_menu()
-    else:
-        clear_screen()
-        print("Invalid choice. Please try again.")
-        load_game()
+def credits():
+    clear_screen()
+    print("Game created by: MisterIdle")
+    print("Ascii art by:")
+    print("- Tombstones by Hayley Jane Wakenshaw")
+    print("- Tree by jg")
+    input("Press Enter to continue...")
+    main_menu()
 
 def exit_game():
     print("Exiting game...")
@@ -105,11 +95,9 @@ def gameloop():
     while is_running:
         clear_screen()
         player.display_stats()
-        current_map.display_map()
+        text_manager.print_line()
 
-        manager.print_all()
-
-        print("\nCommands:")
+        print("# Would you like to: <save> <bag> <exit>")
         choice = input("> ")
 
         if choice in ["q", "d", "z", "s", "n", "e", "w"]: 
@@ -133,7 +121,6 @@ def gameloop():
             print("Invalid command. Please try again.")
 
     main_menu()
-
 
 
 ####################
@@ -164,20 +151,15 @@ class Map:
 
     def get_name(self):
         return self.current_map_name
-
+    
     def get_description(self):
         player_x, player_y = player.get_pos()
-        tile_type = self.current_map[player_y][player_x]
-        if tile_type in self.tiles:
-            return self.tiles[tile_type]["description"]
+        tite_type = self.current_map[player_y][player_x]
+        if tite_type in self.tiles:
+            return self.tiles[tite_type]["description"]
         else:
-            return "Unknown location. (DEBUG ONLY!)"
-    
-    def display_map(self):
-        manager.print_right(self.get_name(), padding="right", height=5)
-        manager.print_right(self.get_description(), padding="left", height=6)
-        manager.print_right("Indépendant", padding="center", height=7)
-
+            return "No description available."
+        
     def teleport(self):
         print("Available destinations:")
         destination_names = list(self.teleport_destinations.keys())
@@ -233,38 +215,29 @@ class Entity:
 
     def get_pos(self):
         return self.x, self.y
+    
+####################
+# Player
+####################
 
 class Player(Entity):
-    def __init__(self, map_instance, save_file="save1.json"):
-        self.save_file_path = os.path.join("saves", save_file)
-        
-        if not os.path.exists("saves"):
-            os.makedirs("saves")
-
-        if os.path.exists(self.save_file_path):
-            with open(self.save_file_path, encoding='utf-8') as f:
-                player_data = json.load(f)
-        else:
-            player_data = self.create_default_data()
-        
-        super().__init__(
-            player_data["name"],
-            player_data["health"],
-            player_data["attack"],
-            player_data["defense"],
-            player_data["speed"],
-            player_data["exp"],
-            player_data["gold"]
-        )
-        self.inventory = [self.create_item(item) for item in player_data["inventory"]]
-        self.x = player_data["position"]["x"]
-        self.y = player_data["position"]["y"]
+    def __init__(self, map_instance):
+        super().__init__("Player", 100, 10, 5, 10)
+        self.inventory = []
         self.map_instance = map_instance
 
-    
     def display_stats(self):
-        manager.print_left(f"Name: {self.name}", padding="left", height=1)
-        manager.print_left(f"Health: {self.health}", padding="right", height=2)
+        print("Name:", self.name)
+        print("HP:", (GREEN), self.health, (RESET), " ATK:", self.attack, " DEF:", self.defense, " GOLD:", (YELLOW), self.gold, (RESET), "\n")
+
+    def display_inventory(self, detailed=False):
+        print("Inventory:")
+        for index, item in enumerate(self.inventory, start=1):
+            print(f"{index}. {item.name} x{item.quantity}")
+
+            if detailed:
+                print(item.description)
+                print()
 
     def move(self, direction):
         x, y = self.get_pos()
@@ -284,7 +257,6 @@ class Player(Entity):
             else:
                 self.x = x
                 self.y = y
-                self.save()
         else:
             print("Invalid move. Please try again.")
 
@@ -298,67 +270,6 @@ class Player(Entity):
 
     def remove_item(self, item):
         self.inventory.remove(item)
-
-    def display_inventory(self, detailed=False):
-        print((YELLOW + " [Inventory] " + RESET))
-        for index, item in enumerate(self.inventory, start=1):
-            print(f"{index}. {item.name} ({item.quantity})")
-            if detailed:
-                print("- " + item.description)
-                print()
-
-    # Save logic
-    def save(self):
-        player_data = {
-            "name": self.name,
-            "health": self.health,
-            "attack": self.attack,
-            "defense": self.defense,
-            "speed": self.speed,
-            "exp": self.exp,
-            "gold": self.gold,
-            "inventory": [item.get_name() for item in self.inventory],
-            "position": {"x": self.x, "y": self.y}
-        }
-        save_manager.save_game(player_data, self.save_file_path)
-
-    def create_default_data(self):
-        return {
-            "name": "Player",
-            "health": 100,
-            "attack": 10,
-            "defense": 5,
-            "speed": 5,
-            "exp": 0,
-            "gold": 0,
-            "inventory": [],
-            "position": {"x": 1, "y": 1}
-        }
-
-####################
-# Save slots
-####################
-
-class SaveManager:
-    def save_game(self, data, save_file):
-        with open(save_file, "w", encoding='utf-8') as f:
-            json.dump(data, f, indent=4)
-
-    def load_game(self, save_file):
-        with open(save_file, encoding='utf-8') as f:
-            return json.load(f)
-
-    def delete_save(self, save_file):
-        os.remove(save_file)
-
-    def get_save_files(self):
-        return os.listdir("saves")
-
-    def create_save_file(self, save_file):
-        with open(save_file, "w") as f:
-            pass
-
-save_manager = SaveManager()
 
 ####################
 # Items
@@ -448,64 +359,25 @@ class HealthPotion(Potion):
 
 class TextManager:
     def __init__(self):
-        self.left_texts = [] 
-        self.right_texts = []
-        self.padding = "center"
-        self.height = 0
+        self.texts = {}
 
-    def print_left(self, text, padding=None, height=None):
-        if padding:
-            self.padding = padding
-        if height:
-            while len(self.left_texts) < height:
-                self.left_texts.append({"text": "", "padding": self.padding, "height": self.height})
-            self.left_texts.append({"text": text, "padding": self.padding, "height": height})
+    def load_texts(self, filename):
+        with open(filename, encoding='utf-8') as f:
+            self.texts = json.load(f)
 
-    def print_right(self, text, padding=None, height=None):
-        if padding:
-            self.padding = padding
-        if height:
-            while len(self.right_texts) < height:
-                self.right_texts.append({"text": "", "padding": self.padding, "height": self.height})
-            self.right_texts.append({"text": text, "padding": self.padding, "height": height})
+    def print_line(self):
+        print("+" + "-" * max_width + "+")
 
-    def print_all(self):
-        max_height = max(len(self.left_texts), len(self.right_texts))
-
-        while len(self.left_texts) < max_height:
-            self.left_texts.append({"text": "", "padding": self.padding, "height": self.height})
-        while len(self.right_texts) < max_height:
-            self.right_texts.append({"text": "", "padding": self.padding, "height": self.height})
-
-        for i in range(max_height):
-            left = self.left_texts[i]
-            right = self.right_texts[i]
-            
-            left_text = left["text"]
-            right_text = right["text"]
-
-            if left["padding"] == "center":
-                left_text = left_text.center(max_width)
-            elif left["padding"] == "left":
-                left_text = left_text.ljust(max_width)
-            elif left["padding"] == "right":
-                left_text = left_text.rjust(max_width)
-
-            if right["padding"] == "center":
-                right_text = right_text.center(max_width)
-            elif right["padding"] == "left":
-                right_text = right_text.ljust(max_width)
-            elif right["padding"] == "right":
-                right_text = right_text.rjust(max_width)
-
-            print(f"| {left_text} | {right_text} |")
-
-manager = TextManager()
+text_manager = TextManager()
 
 ####################
 # Utility functions
 ####################
 
+def load_ascii_art(filename):
+    with open(f"images/{filename}.txt", encoding="utf-8") as f:
+        return f.read()
+    
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
