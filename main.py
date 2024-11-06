@@ -1,8 +1,5 @@
 import os
-import random
 import json
-import sys
-import io
 
 RESET = "\033[0m"
 YELLOW = "\033[33m"
@@ -11,6 +8,8 @@ RED = "\033[31m"
 
 player = None
 current_map = None
+max_width = 40
+max_height = 20 
 
 def main():
     main_menu()
@@ -41,7 +40,6 @@ def main_menu():
 def new_game():
     global player, current_map
 
-    # Si le dossier saves n'existe pas, on le crée
     if not os.path.exists("saves"):
         os.makedirs("saves")
 
@@ -56,7 +54,10 @@ def new_game():
     
     current_map = Map(data_maps)
     player = Player(current_map, save_file)
+
     player.add_item(Knife())
+    player.add_item(HealthPotion())
+
     print("New game created.")
     gameloop()
 
@@ -95,33 +96,44 @@ def exit_game():
 # Game loop
 ####################
 
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")
+
 def gameloop():
     is_running = True
 
     while is_running:
         clear_screen()
-        print("=== Game ===")
-        
-        print(current_map.get_description())
-        
-        current_map.show_map()
+        player.display_stats()
+        current_map.display_map()
 
-        # Show player inventory
-        player.display_inventory()
+        manager.print_all()
 
-        choice = input("Enter command: ")
+        print("\nCommands:")
+        choice = input("> ")
 
         if choice in ["q", "d", "z", "s", "n", "e", "w"]: 
             player.move(choice)
         elif choice == "save":
             player.save()
             print("Game saved.")
+        elif choice == "bag":
+            clear_screen()
+            player.display_inventory(detailed=True)
+            item_choice = input("Enter the number of the item you want to use or press any other key to cancel: ")
+
+            if item_choice.isdigit() and 1 <= int(item_choice) <= len(player.inventory):
+                item = player.inventory[int(item_choice) - 1]
+                item.use()
+            else:
+                print("Action cancelled.")
         elif choice == "exit":
             is_running = False
         else:
             print("Invalid command. Please try again.")
 
     main_menu()
+
 
 
 ####################
@@ -150,6 +162,9 @@ class Map:
                     print(tile, end=" ")
             print()
 
+    def get_name(self):
+        return self.current_map_name
+
     def get_description(self):
         player_x, player_y = player.get_pos()
         tile_type = self.current_map[player_y][player_x]
@@ -157,6 +172,11 @@ class Map:
             return self.tiles[tile_type]["description"]
         else:
             return "Unknown location. (DEBUG ONLY!)"
+    
+    def display_map(self):
+        manager.print_right(self.get_name(), padding="right", height=5)
+        manager.print_right(self.get_description(), padding="left", height=6)
+        manager.print_right("Indépendant", padding="center", height=7)
 
     def teleport(self):
         print("Available destinations:")
@@ -241,6 +261,10 @@ class Player(Entity):
         self.y = player_data["position"]["y"]
         self.map_instance = map_instance
 
+    
+    def display_stats(self):
+        manager.print_left(f"Name: {self.name}", padding="left", height=1)
+        manager.print_left(f"Health: {self.health}", padding="right", height=2)
 
     def move(self, direction):
         x, y = self.get_pos()
@@ -265,15 +289,23 @@ class Player(Entity):
             print("Invalid move. Please try again.")
 
     def add_item(self, item):
+        for inventory_item in self.inventory:
+            if inventory_item.name == item.name:
+                inventory_item.quantity += 1
+                return
+
         self.inventory.append(item)
 
     def remove_item(self, item):
         self.inventory.remove(item)
 
-    def display_inventory(self):
-        print("Inventory:")
+    def display_inventory(self, detailed=False):
+        print((YELLOW + " [Inventory] " + RESET))
         for index, item in enumerate(self.inventory, start=1):
-            print(f"{index}. {item.get_name()} - {item.get_description()}")
+            print(f"{index}. {item.name} ({item.quantity})")
+            if detailed:
+                print("- " + item.description)
+                print()
 
     # Save logic
     def save(self):
@@ -336,12 +368,26 @@ with open("data/items.json", encoding='utf-8') as f:
     items_data = json.load(f)
 
 class Item:
-    def __init__(self, name, description):
+    def __init__(self, name, description, quantity=1):
         self.name = name
         self.description = description
+        self.quantity = quantity
 
     def use(self):
-        print("Item used:", self.name)
+        print(f"{self.name} used.")
+        
+        if not isinstance(self, (Weapon)):
+            self.activate_effect()
+            if self.quantity > 1:
+                self.quantity -= 1
+            else:
+                player.remove_item(self) 
+
+        else:
+            print("Cannot use this item in this way.")
+
+    def activate_effect(self):
+        print("This item has no special effect.")
 
     def get_name(self):
         return self.name
@@ -376,6 +422,85 @@ class Axe(Weapon):
     def __init__(self):
         data = items_data["items"]["weapon"]["axe"]
         super().__init__(data["name"], data.get("description", "An axe"), data["damage"], data["critical"])
+
+####################
+# Potions
+####################
+
+class Potion(Item):
+    def __init__(self, name, description):
+        super().__init__(name, description)
+
+
+class HealthPotion(Potion):
+    def __init__(self):
+        data = items_data["items"]["potion"]["health"]
+        super().__init__(data["name"], data["description"])
+
+    def activate_effect(self):
+        heal_amount = items_data["items"]["potion"]["health"]["heal"]
+        player.health += heal_amount
+        print(f"{self.name} used! You healed {heal_amount} health points.")
+
+####################
+# Text Manager
+####################
+
+class TextManager:
+    def __init__(self):
+        self.left_texts = [] 
+        self.right_texts = []
+        self.padding = "center"
+        self.height = 0
+
+    def print_left(self, text, padding=None, height=None):
+        if padding:
+            self.padding = padding
+        if height:
+            while len(self.left_texts) < height:
+                self.left_texts.append({"text": "", "padding": self.padding, "height": self.height})
+            self.left_texts.append({"text": text, "padding": self.padding, "height": height})
+
+    def print_right(self, text, padding=None, height=None):
+        if padding:
+            self.padding = padding
+        if height:
+            while len(self.right_texts) < height:
+                self.right_texts.append({"text": "", "padding": self.padding, "height": self.height})
+            self.right_texts.append({"text": text, "padding": self.padding, "height": height})
+
+    def print_all(self):
+        max_height = max(len(self.left_texts), len(self.right_texts))
+
+        while len(self.left_texts) < max_height:
+            self.left_texts.append({"text": "", "padding": self.padding, "height": self.height})
+        while len(self.right_texts) < max_height:
+            self.right_texts.append({"text": "", "padding": self.padding, "height": self.height})
+
+        for i in range(max_height):
+            left = self.left_texts[i]
+            right = self.right_texts[i]
+            
+            left_text = left["text"]
+            right_text = right["text"]
+
+            if left["padding"] == "center":
+                left_text = left_text.center(max_width)
+            elif left["padding"] == "left":
+                left_text = left_text.ljust(max_width)
+            elif left["padding"] == "right":
+                left_text = left_text.rjust(max_width)
+
+            if right["padding"] == "center":
+                right_text = right_text.center(max_width)
+            elif right["padding"] == "left":
+                right_text = right_text.ljust(max_width)
+            elif right["padding"] == "right":
+                right_text = right_text.rjust(max_width)
+
+            print(f"| {left_text} | {right_text} |")
+
+manager = TextManager()
 
 ####################
 # Utility functions
