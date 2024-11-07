@@ -1,56 +1,22 @@
 {
-    "items": {
-        "weapon": {
-            "knife": {
-                "name": "Knife",
-                "damage": 5,
-                "critical": 10,
-                "description": "A basic knife",
-                "kilograms": 0.5
-            },
-
-            "sword": {
-                "name": "Sword",
-                "damage": 10,
-                "critical": 20,
-                "description": "A basic sword",
-                "kilograms": 1
-
-            },
-
-            "axe": {
-                "name": "Axe",
-                "damage": 15,
-                "critical": 30,
-                "description": "A basic axe",
-                "kilograms": 1.5
-            }
+    "weapons": {
+        "sword": {
+            "name": "Sword",
+            "description": "A sharp sword.",
+            "damage": 10
         },
+        "axe": {
+            "name": "Axe",
+            "description": "A heavy axe.",
+            "damage": 12
+        }
+    },
 
-        "armor": {
-            "helmet": {
-                "name": "Helmet",
-                "defense": 5
-            },
-            "chestplate": {
-                "name": "Chestplate",
-                "defense": 10
-            }
-        },
-
-        "potion": {
-            "health": {
-                "name": "Health Potion",
-                "description": "Heals 10 health points",
-                "heal": 10,
-                "kilograms": 0.5
-            },
-            "defense": {
-                "name": "Defense Potion",
-                "description": "Increases defense by 5",
-                "boost": 5,
-                "kilograms": 0.5
-            }
+    "consumables": {
+        "health_potion": {
+            "name": "Health Potion",
+            "description": "Restores 20 health points.",
+            "healing": 20
         }
     }
 }

@@ -1,0 +1,45 @@
+{
+    "tiles": {
+        "Forest": {
+            "name": "Forest",
+            "description": "A dense forest with tall trees and thick underbrush.",
+            "symbol": "F"
+        },
+        "Cave": {
+            "name": "Cave",
+            "description": "A dark, damp cave with stalactites and stalagmites.",
+            "symbol": "C"
+        },
+        "Teleporter": {
+            "name": "Teleporter",
+            "description": "A magical portal that transports you to another location.",
+            "symbol": "T"
+        }
+    },
+
+    "layout": {
+        "forest": {
+          "description": "A dark forest",
+          "tileset": [
+            ["#", "#", "#", "#", "#"],
+            ["#", " ", " ", " ", "#"],
+            ["#", " ", " ", " ", "#"],
+            ["#", "#", "#", "#", "#"]
+          ],
+          "inventory": {
+            "entities": [
+              {
+                "name": "goblin",
+                "position": [1, 1],
+                "quantity": 1
+              },
+              {
+                "name": "goblin",
+                "position": [2, 2],
+                "quantity": 1
+              }
+            ]
+          }
+        }
+    }
+}
