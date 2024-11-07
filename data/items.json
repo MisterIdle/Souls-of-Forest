@@ -1,10 +1,17 @@
 {
     "weapons": {
+        "hand": {
+            "name": "Hand",
+            "description": "Your bare hands.",
+            "damage": 1
+        },
+
         "sword": {
             "name": "Sword",
             "description": "A simple sword.",
-            "damage": 10
+            "damage": 3
         },
+
         "axe": {
             "name": "Axe",
             "description": "A simple axe.",

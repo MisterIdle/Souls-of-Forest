@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 # Chargement des données JSON
 def load_data():
@@ -50,9 +51,10 @@ def new_game():
     global game_map
     game_map = Map(map_data)
 
-    # Ajoute une épée et une potion de vie dans l'inventaire du joueur
+    hand = Hand()
     sword = Sword()
     health_potion = HealthPotion()
+    player.inventory.append(hand)
     player.inventory.append(sword)
     player.inventory.append(health_potion)
 
@@ -86,7 +88,18 @@ def player_action():
                 item_index = int(item_choice) - 1
                 if 0 <= item_index < len(player.inventory):
                     item = player.inventory[item_index]
-                    item.use(player)
+                    if isinstance(item, Weapon):
+                        target = None
+                        for enemy in game_map.entities:
+                            if enemy.position == player.position:
+                                target = enemy
+                                break
+                        if target:
+                            item.use(player, target)
+                        else:
+                            print("No enemy in range to attack!")
+                    else:
+                        item.use(player)
                 else:
                     print("Invalid item number!")
             except ValueError:
@@ -179,53 +192,12 @@ class Entity:
         else:
             print(f"{self.name} does not have {item.name} in their inventory.")
 
+    # Combat
+    def die(self):
+        print(f"{self.name} has died!")
 
-    # Attack
-    def attack_entity(self, target):
-        # Regarde seulement les objets de type Weapon, indique les avec leurs index
-        weapons = [item for item in self.inventory if isinstance(item, Weapon)]
-        if not weapons:
-            print(f"{self.name} does not have any weapons in their inventory.")
-            return
-        
-        print("Choose a weapon to attack with:")
-        for index, weapon in enumerate(weapons, 1):
-            print(f"{index}. {weapon.name} - {weapon.description}")
-
-        weapon_choice = input("> ")
-        try:
-            weapon_index = int(weapon_choice) - 1
-            if 0 <= weapon_index < len(weapons):
-                weapon = weapons[weapon_index]
-                weapon.use(self, target)
-            else:
-                print("Invalid weapon number!")
-        except ValueError:
-            print("Invalid input! Please enter a valid number.")
-
-    def use_consumable(self, consumable):
-        consumable = [item for item in self.inventory if isinstance(item, Consumable)]
-        if not consumable:
-            print(f"{self.name} does not have any consumables in their inventory.")
-            return
-        
-        print("Choose a consumable to use:")
-        for index, consumable in enumerate(consumable, 1):
-            print(f"{index}. {consumable.name} - {consumable.description}")
-
-        consumable_choice = input("> ")
-        try:
-            consumable_index = int(consumable_choice) - 1
-            if 0 <= consumable_index < len(consumable):
-                consumable = consumable[consumable_index]
-                consumable.use(self)
-            else:
-                print("Invalid consumable number!")
-        except ValueError:
-            print("Invalid input! Please enter a valid number.")
-
-    def is_dead(self):
-        return self.health <= 0
+    def use_item(self, item):
+        print(f"{self.name} uses {item.name}.")
 
 
 ## PLAYER ##
@@ -255,9 +227,6 @@ class Player(Entity):
         else:
             print("Invalid move!")
 
-    def use_item(self, item, in_combat=False):
-        super().use_item(item, in_combat)
-
     def is_position_valid(self, position, game_map):
         x, y = position
         return 0 <= x < len(game_map.current_map_tileset[0]) and 0 <= y < len(game_map.current_map_tileset)
@@ -272,8 +241,21 @@ class Player(Entity):
         for enemy in game_map.entities:
             if enemy.position == position:
                 print(f"You encounter {enemy.name}!")
-                combat(self, enemy)
+                combat_manager = CombatManager(self, enemy)
+                combat_manager.start_combat()
                 break
+
+    # Combat
+    def use_item(self, item, target=None):
+        if isinstance(item, Weapon):
+            if target:
+                item.use(self, target)
+            else:
+                print("No target to attack.")
+        elif isinstance(item, Consumable):
+            item.use(self)
+        else:
+            print(f"{item.name} cannot be used.")
 
 ## ENEMIES ##
 class Enemy(Entity):
@@ -289,27 +271,50 @@ class Enemy(Entity):
                 self.inventory.append(self.add_item(item_name))
                 print(f"Adding {item_name} to {self.name}'s inventory.")
 
+    # Combat
+    def die(self):
+        super().die()
+        print(f"{self.name} drops:")
+        for item in self.inventory:
+            print(f"{item.name} - {item.description}")
+
+    def use_item(self, item):
+        item.use(self)
+
 ## ITEMS ##
 class Item:
     def __init__(self, data):
         self.name = data["name"]
         self.description = data["description"]
 
-    def use(self, entity, in_combat=False):
-        entity.use_item(self, in_combat)
-
     def apply_effect(self, entity):
-        print(f"{entity.name} uses {self.name})")
+        pass
 
 class Weapon(Item):
     def __init__(self, data):
         super().__init__(data)
         self.damage = data["damage"]
 
-    def apply_effect(self, entity, target):
-        print(f"{entity.name} uses {self.name} and deals {self.damage} damage to {target.name}!")
-        target.health -= self.damage
+    def use(self, entity, target):
+        self.apply_effect(entity, target)
 
+    def apply_effect(self, entity, target):
+        miss_chance = random.randint(1, 100) <= 10
+        if miss_chance:
+            print(f"{entity.name}'s attack missed!")
+            return
+        
+        defense_factor = random.uniform(0.5, 1.0) * target.defense
+        adjusted_damage = self.damage - defense_factor
+
+        adjusted_damage = max(adjusted_damage, 1)
+
+        target.health -= adjusted_damage
+
+class Hand(Weapon):
+    def __init__(self):
+        hand_data = items_data["weapons"]["hand"]
+        super().__init__(hand_data)
 
 class Sword(Weapon):
     def __init__(self):
@@ -321,15 +326,9 @@ class Consumable(Item):
         super().__init__(data)
         self.health = data["health"]
 
-    def use(self, entity, in_combat=False):
-        entity.use_item(self, in_combat)
-
-    def use_item(self, entity):
+    def use(self, entity):
         self.apply_effect(entity)
         entity.remove_item(self)
-
-    def apply_effect(self, entity):
-        pass
 
 class HealthPotion(Consumable):
     def __init__(self):
@@ -340,31 +339,123 @@ class HealthPotion(Consumable):
         entity.health += self.health
 
 ## COMBAT ##
-def combat(player, enemy):
-    print(f"Combat between {player.name} and {enemy.name}!")
+class CombatManager:
+    def __init__(self, player, enemy):
+        self.player = player
+        self.enemy = enemy
 
-    while player.health > 0 and enemy.health > 0:
-        print(f"{player.name} health: {player.health}")
-        print(f"{enemy.name} health: {enemy.health}")
+    def start_combat(self):
+        print(f"Combat started between {self.player.name} and {self.enemy.name}!")
 
-        print(f"Would you like to attack or use an item? <attack/item>")
-        choice = input("> ").lower()
+        while self.player.health > 0 and self.enemy.health > 0:
+            self.print_status()
+            self.player_turn()
+            if self.enemy.health <= 0:
+                print(f"{self.enemy.name} has been defeated!")
+                break
+            self.enemy_turn()
+            if self.player.health <= 0:
+                print(f"{self.player.name} has been defeated!")
+                break
 
-        if choice == "attack":
-            player.attack_entity(enemy)
-        elif choice == "item":
-            player.use_consumable()
+    def print_status(self):
+        print(f"{self.player.name} - Health: {round(self.player.health, 2)} - Attack: {self.player.attack} - Defense: {self.player.defense}")
+        print(f"{self.enemy.name} - Health: {round(self.enemy.health, 2)} - Attack: {self.enemy.attack} - Defense: {self.enemy.defense}")
 
-        if not enemy.is_dead():
-            enemy.attack_entity(player)
+    def player_turn(self):
+        print("\nChoose an action: [1] - Attack, [2] - Use item, [3] - Run")
+        choice = input("> ")
+
+        if choice == "1":
+            self.player_attack()
+        elif choice == "2":
+            self.player_use_item()
+        elif choice == "3":
+            self.run_away()
         else:
-            print(f"{enemy.name} is defeated!")
-            break
+            print("Invalid choice, try again!")
+            self.player_turn()
 
-    if player.is_dead():
-        print(f"{player.name} is defeated!")
-        main_menu()
-            
+    def player_attack(self):
+        weapons = [item for item in self.player.inventory if isinstance(item, Weapon)]
+
+        if weapons:
+            for index, weapon in enumerate(weapons, 1):
+                print(f"{index}. {weapon.name} - {weapon.description}")
+
+            print("Which weapon would you like to use? (Enter number)")
+            weapon_choice = input("> ")
+            try:
+                weapon_index = int(weapon_choice) - 1
+                if 0 <= weapon_index < len(weapons):
+                    weapon = weapons[weapon_index]
+                    weapon.use(self.player, self.enemy)
+                else:
+                    print("Invalid weapon number!")
+            except ValueError:
+                print("Invalid input! Please enter a valid number.")
+        else:
+            print("You have no weapons in your inventory!")
+
+    def player_use_item(self):
+        consumables = [item for item in self.player.inventory if isinstance(item, Consumable)]
+        if consumables:
+            for index, consumable in enumerate(consumables, 1):
+                print(f"{index}. {consumable.name} - {consumable.description}")
+
+            print("Which item would you like to use? (Enter number)")
+            item_choice = input("> ")
+            try:
+                item_index = int(item_choice) - 1
+                if 0 <= item_index < len(consumables):
+                    item = consumables[item_index]
+                    item.use(self.player)
+                else:
+                    print("Invalid item number!")
+            except ValueError:
+                print("Invalid input! Please enter a valid number.")
+        else:
+            print("You have no consumables in your inventory!")
+
+    def run_away(self):
+        print(f"{self.player.name} attempts to run away!")
+        success_chance = random.randint(1, 100)
+        if success_chance > 50:
+            print(f"{self.player.name} successfully ran away!")
+            return
+        else:
+            print(f"{self.player.name} failed to escape!")
+
+    def enemy_turn(self):
+        print(f"{self.enemy.name} attacks!")
+
+        if self.enemy.health < 30:
+            consumables = [item for item in self.enemy.inventory if isinstance(item, Consumable)]
+
+            if not consumables:
+                print(f"{self.enemy.name} has no consumables to use!")
+                weapons = [item for item in self.enemy.inventory if isinstance(item, Weapon)]
+                if weapons:
+                    weapon = weapons[0]
+                    weapon.use(self.enemy, self.player)
+                    print(f"{self.enemy.name} used {weapon.name}!")
+                return
+
+            if consumables:
+                consumable = consumables[0]
+                consumable.use(self.enemy)
+                print(f"{self.enemy.name} used {consumable.name}!")
+                return
+        
+        # Enemy attacks with its weapon
+        weapons = [item for item in self.enemy.inventory if isinstance(item, Weapon)]
+        if weapons:
+            weapon = weapons[0]  # Assuming the enemy uses the first weapon in the list
+            weapon.use(self.enemy, self.player)
+        else:
+            print(f"{self.enemy.name} has no weapon to attack with!")
+
+
 
 ## UTILS ##
 def exit_game():
