@@ -12,13 +12,16 @@ def load_data():
         
         with open("data/items.json", "r") as file:
             items_data = json.load(file)
+
+        with open("data/loot.json", "r") as file:
+            loot_data = json.load(file)
         
-        return entities_data, map_data, items_data
+        return entities_data, map_data, items_data, loot_data
     except FileNotFoundError as e:
         print(f"Error: {e}")
         exit()
 
-entities_data, map_data, items_data = load_data()
+entities_data, map_data, items_data, loot_data = load_data()
 
 ## MAIN ##
 def main():
@@ -44,10 +47,14 @@ def new_game():
     print("Starting a new game...")
     global player
     player = Player(entities_data["player"])
-    player.add_item(Sword())  # Ajouter une épée au joueur
-
     global game_map
     game_map = Map(map_data)
+
+    # Ajoute une épée et une potion de vie dans l'inventaire du joueur
+    sword = Sword()
+    health_potion = HealthPotion()
+    player.inventory.append(sword)
+    player.inventory.append(health_potion)
 
     print("Press any key to continue...")
     input()
@@ -100,7 +107,7 @@ class Map:
         self.current_map_tileset = self.map_layout[self.current_map_name]["tileset"]
         self.current_map_inventory = self.map_layout[self.current_map_name]["inventory"]
         self.inventory = []
-        self.entities = []  # Liste pour stocker les entités ennemies
+        self.entities = []
         self.init_entities()
 
     def init_entities(self):
@@ -112,8 +119,9 @@ class Map:
                 entity_name = entity["name"]
                 entity_position = tuple(entity["position"])
                 new_entity = Enemy(entities_data[entity_name], entity_position)
+                new_entity.setup_loot_in_inventory()
                 self.entities.append(new_entity)
-                print(f"{new_entity.name} has been added to the map at position {entity_position}.")
+
 
     def print_map(self):
         print(f"Map: {self.current_map_name}")
@@ -144,12 +152,26 @@ class Entity:
         self.defense = data["defense"]
         self.experience = data["experience"]
         self.gold = data["gold"]
+        self.inventory = data.get("inventory", [])
         self.position = position
-        self.inventory = []
 
-    def add_item(self, item, quantity=1):
-        for _ in range(quantity):
-            self.inventory.append(item)
+    # Inventory
+    def add_item(self, item_name):
+        if isinstance(item_name, str):
+            if item_name in items_data["weapons"]:
+                return Weapon(items_data["weapons"][item_name])
+            elif item_name in items_data["consumables"]:
+                return Consumable(items_data["consumables"][item_name])
+            else:
+                print(f"Item {item_name} not found in the items data.")
+
+    def print_inventory(self):
+        if not self.inventory:
+            print("Your inventory is empty!")
+        else:
+            print("Inventory:")
+            for index, item in enumerate(self.inventory, 1):
+                print(f"{index}. {item.name} - {item.description}")
 
     def remove_item(self, item):
         if item in self.inventory:
@@ -157,17 +179,54 @@ class Entity:
         else:
             print(f"{self.name} does not have {item.name} in their inventory.")
 
-    def use_item(self, item, in_combat=False):
-        if isinstance(item, Weapon):
-            if in_combat:
-                print(f"{self.name} attacks with {item.name} in combat and deals {item.damage} damage.")
+
+    # Attack
+    def attack_entity(self, target):
+        # Regarde seulement les objets de type Weapon, indique les avec leurs index
+        weapons = [item for item in self.inventory if isinstance(item, Weapon)]
+        if not weapons:
+            print(f"{self.name} does not have any weapons in their inventory.")
+            return
+        
+        print("Choose a weapon to attack with:")
+        for index, weapon in enumerate(weapons, 1):
+            print(f"{index}. {weapon.name} - {weapon.description}")
+
+        weapon_choice = input("> ")
+        try:
+            weapon_index = int(weapon_choice) - 1
+            if 0 <= weapon_index < len(weapons):
+                weapon = weapons[weapon_index]
+                weapon.use(self, target)
             else:
-                print(f"{self.name} uses {item.name}... in the wind.")
-        elif isinstance(item, Item):
-            if in_combat:
-                print(f"{self.name} uses {item.name} in combat.")
+                print("Invalid weapon number!")
+        except ValueError:
+            print("Invalid input! Please enter a valid number.")
+
+    def use_consumable(self, consumable):
+        consumable = [item for item in self.inventory if isinstance(item, Consumable)]
+        if not consumable:
+            print(f"{self.name} does not have any consumables in their inventory.")
+            return
+        
+        print("Choose a consumable to use:")
+        for index, consumable in enumerate(consumable, 1):
+            print(f"{index}. {consumable.name} - {consumable.description}")
+
+        consumable_choice = input("> ")
+        try:
+            consumable_index = int(consumable_choice) - 1
+            if 0 <= consumable_index < len(consumable):
+                consumable = consumable[consumable_index]
+                consumable.use(self)
             else:
-                print(f"{self.name} uses {item.name} outside of combat.")
+                print("Invalid consumable number!")
+        except ValueError:
+            print("Invalid input! Please enter a valid number.")
+
+    def is_dead(self):
+        return self.health <= 0
+
 
 ## PLAYER ##
 class Player(Entity):
@@ -213,27 +272,22 @@ class Player(Entity):
         for enemy in game_map.entities:
             if enemy.position == position:
                 print(f"You encounter {enemy.name}!")
+                combat(self, enemy)
                 break
-
-    def print_inventory(self):
-        if not self.inventory:
-            print("Your inventory is empty!")
-        else:
-            print("Inventory:")
-            for index, item in enumerate(self.inventory, 1):
-                print(f"{index}. {item.name} - {item.description}")
 
 ## ENEMIES ##
 class Enemy(Entity):
     def __init__(self, data, position):
         super().__init__(data, position)
-        self.inventory = []
+        self.loot = data.get("loot", [])
 
-    def add_inventory(self):
-        for item in self.inventory:
-            for _ in range(item["quantity"]):
-                self.add_item(Weapon(items_data["weapons"][item["type"]]))
-                print(f"{self.name} loots {item['type']}")
+    def setup_loot_in_inventory(self):
+        for item in loot_data[self.loot]["items"]:
+            item_name = item["name"]
+            item_quantity = item["quantity"]
+            for _ in range(item_quantity):
+                self.inventory.append(self.add_item(item_name))
+                print(f"Adding {item_name} to {self.name}'s inventory.")
 
 ## ITEMS ##
 class Item:
@@ -245,18 +299,17 @@ class Item:
         entity.use_item(self, in_combat)
 
     def apply_effect(self, entity):
-        pass
+        print(f"{entity.name} uses {self.name})")
 
 class Weapon(Item):
     def __init__(self, data):
         super().__init__(data)
         self.damage = data["damage"]
 
-    def use(self, entity, in_combat=False):
-        entity.use_item(self, in_combat)
+    def apply_effect(self, entity, target):
+        print(f"{entity.name} uses {self.name} and deals {self.damage} damage to {target.name}!")
+        target.health -= self.damage
 
-    def apply_effect(self, entity):
-        entity.attack += self.damage
 
 class Sword(Weapon):
     def __init__(self):
@@ -271,8 +324,47 @@ class Consumable(Item):
     def use(self, entity, in_combat=False):
         entity.use_item(self, in_combat)
 
+    def use_item(self, entity):
+        self.apply_effect(entity)
+        entity.remove_item(self)
+
+    def apply_effect(self, entity):
+        pass
+
+class HealthPotion(Consumable):
+    def __init__(self):
+        health_potion_data = items_data["consumables"]["health_potion"]
+        super().__init__(health_potion_data)
+
     def apply_effect(self, entity):
         entity.health += self.health
+
+## COMBAT ##
+def combat(player, enemy):
+    print(f"Combat between {player.name} and {enemy.name}!")
+
+    while player.health > 0 and enemy.health > 0:
+        print(f"{player.name} health: {player.health}")
+        print(f"{enemy.name} health: {enemy.health}")
+
+        print(f"Would you like to attack or use an item? <attack/item>")
+        choice = input("> ").lower()
+
+        if choice == "attack":
+            player.attack_entity(enemy)
+        elif choice == "item":
+            player.use_consumable()
+
+        if not enemy.is_dead():
+            enemy.attack_entity(player)
+        else:
+            print(f"{enemy.name} is defeated!")
+            break
+
+    if player.is_dead():
+        print(f"{player.name} is defeated!")
+        main_menu()
+            
 
 ## UTILS ##
 def exit_game():

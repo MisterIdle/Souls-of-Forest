@@ -21,15 +21,7 @@
         "defense": 2,
         "experience": 10,
         "gold": 5,
-        "inventory": [
-            {
-                "type": "Sword",
-                "quantity": 1
-            },
-            {
-                "type": "Health Potion",
-                "quantity": 1
-            }
-        ]
+        "loot": "loot_goblin",
+        "inventory": []
     }
 }

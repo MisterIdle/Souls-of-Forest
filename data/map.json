@@ -18,28 +18,19 @@
     },
 
     "layout": {
-        "forest": {
-          "description": "A dark forest",
-          "tileset": [
-            ["#", "#", "#", "#", "#"],
-            ["#", " ", " ", " ", "#"],
-            ["#", " ", " ", " ", "#"],
-            ["#", "#", "#", "#", "#"]
-          ],
-          "inventory": {
-            "entities": [
-              {
-                "name": "goblin",
-                "position": [1, 1],
-                "quantity": 1
-              },
-              {
-                "name": "goblin",
-                "position": [2, 2],
-                "quantity": 1
-              }
-            ]
-          }
+        "Tutoriel": {
+            "name": "Tutoriel",
+            "description": "A small map to learn the basics of the game.",
+            "tileset": [
+                ["F", "F", "F"],
+                ["F", "C", "F"],
+                ["F", "F", "F"]
+            ],
+            "inventory": {
+                "entities": [
+                    {"name": "goblin", "position": [1, 1], "quantity": 1}
+                ]
+            }
         }
     }
 }

@@ -1,0 +1,14 @@
+{
+    "loot_goblin": {
+        "items": [
+            {
+                "name": "sword",
+                "quantity": 1
+            },
+            {
+                "name": "health_potion",
+                "quantity": 2
+            }
+        ]
+    }
+}
