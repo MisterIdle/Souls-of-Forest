@@ -9,7 +9,7 @@
         "sword": {
             "name": "Sword",
             "description": "A simple sword.",
-            "damage": 3
+            "damage": 5
         },
 
         "axe": {
@@ -21,14 +21,16 @@
 
     "consumables": {
         "health_potion": {
-            "name": "Potion",
-            "description": "A healing potion.",
-            "health": 20
+            "name": "Health Potion",
+            "description": "Restores 50 health points.",
+            "effect": "health",
+            "amount": 50
         },
-        "elixir": {
-            "name": "Elixir",
-            "description": "A powerful elixir.",
-            "health": 50
+        "defense_potion": {
+            "name": "Defense Potion",
+            "description": "Increases defense by 10 points for a short time.",
+            "effect": "defense",
+            "amount": 10
         }
     }
 }

@@ -29,6 +29,11 @@
             "inventory": {
                 "entities": [
                     {"name": "goblin", "position": [1, 1], "quantity": 1}
+                ],
+                "items": [
+                    {"name": "sword", "position": [0, 0], "quantity": 1},
+                    {"name": "health_potion", "position": [2, 2], "quantity": 5},
+                    {"name": "sword", "position": [2, 2], "quantity": 2}
                 ]
             }
         }
