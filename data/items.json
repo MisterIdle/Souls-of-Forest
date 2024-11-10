@@ -1,36 +1,53 @@
 {
     "weapons": {
-        "hand": {
-            "name": "Hand",
-            "description": "Your bare hands.",
-            "damage": 1
+        "knife": {
+            "name": "Knife",
+            "description": "A small knife",
+            "value": 5,
+            "effect": "stab"
         },
-
+        
         "sword": {
             "name": "Sword",
-            "description": "A simple sword.",
-            "damage": 5
+            "description": "A short sword with a sharp",
+            "value": 10,
+            "effect": "slash"
         },
-
         "axe": {
             "name": "Axe",
-            "description": "A simple axe.",
-            "damage": 15
+            "description": "A small axe",
+            "value": 15,
+            "effect": "chop"
+        },
+        "bow": {
+            "name": "Bow",
+            "description": "A simple bow",
+            "value": 20,
+            "effect": "shoot"
         }
     },
 
     "consumables": {
         "health_potion": {
-            "name": "Health Potion",
-            "description": "Restores 50 health points.",
-            "effect": "health",
-            "amount": 50
+            "name": "Potion",
+            "description": "A small health potion",
+            "value": 10,
+            "effect": "heal"
+        }
+    },
+
+    "scrolls": {
+        "fireball": {
+            "name": "Fireball Scroll",
+            "description": "A scroll that casts a fireball",
+            "value": 20,
+            "effect": "fire"
         },
-        "defense_potion": {
-            "name": "Defense Potion",
-            "description": "Increases defense by 10 points for a short time.",
-            "effect": "defense",
-            "amount": 10
+        "lightning": {
+            "name": "Lightning Scroll",
+            "description": "A scroll that casts a lightning bolt",
+            "value": 30,
+            "effect": "lightning"
         }
     }
 }

@@ -1,29 +1,52 @@
 {
     "player": {
         "name": "Player",
-        "description": "The player character.",
         "symbol": "@",
-        "health": 100,
-        "max_health": 100,
-        "attack": 5,
-        "defense": 5,
-        "experience": 0,
+        "description": "The player character.",
+        "health": 10,
+        "maxHealth": 10,
+        "attack": 1,
+        "defense": 1,
         "level": 1,
         "gold": 0,
-        "inventory": []
+        "inventory": [],
+        "position": [0, 0]
     },
 
-    "goblin": {
-        "name": "Goblin",
-        "description": "A small, green creature with sharp teeth and claws.",
-        "symbol": "g",
-        "health": 10,
-        "max_health": 20,
-        "attack": 5,
-        "defense": 2,
-        "experience": 10,
-        "gold": 5,
-        "loot": "loot_goblin",
-        "inventory": []
+    "enemies": {
+        "slime": {
+            "name": "Slime",
+            "symbol": "s",
+            "description": "A small, green slime.",
+            "health": 5,
+            "maxHealth": 5,
+            "attack": 1,
+            "defense": 0,
+            "level": {
+                "min": 1,
+                "max": 3
+            },
+            "experienceDrop": 10,
+            "gold": 5,
+            "inventory": [],
+            "position": [0, 0]
+        },
+        "goblin": {
+            "name": "Goblin",
+            "symbol": "g",
+            "description": "A small, green goblin.",
+            "health": 10,
+            "maxHealth": 10,
+            "attack": 2,
+            "defense": 1,
+            "level": {
+                "min": 2,
+                "max": 4
+            },
+            "experienceDrop": 20,
+            "gold": 10,
+            "inventory": [],
+            "position": [0, 0]
+        }
     }
 }

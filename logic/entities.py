@@ -1,194 +1,109 @@
-from logic.utils import items_data, loot_data
-from logic.items import Weapon, Consumable
-from logic.combat import CombatManager
+import random
+import logic.utils as u
+import logic.map as m
 
-## ENTITIES ##
 class Entity:
-    def __init__(self, data, position=(0, 0)):
-        self.name = data["name"]
-        self.description = data["description"]
-        self.symbol = data["symbol"]
-        self.health = data["health"]
-        self.max_health = data["health"]
-        self.attack = data["attack"]
-        self.defense = data["defense"]
-        self.experience = data["experience"]
-        self.gold = data["gold"]
-        self.inventory = data.get("inventory", [])
+    def __init__(self, name, symbol, description, health, max_health, attack, defense, level, gold, inventory, position):
+        self.name = name
+        self.symbol = symbol
+        self.description = description
+        self.health = health
+        self.max_health = max_health
+        self.attack = attack
+        self.defense = defense
+        self.level = level
+        self.gold = gold
+        self.inventory = inventory
         self.position = position
 
-    # Inventory
-    def add_item(self, item_name):
-        if isinstance(item_name, str):
-            if item_name in items_data["weapons"]:
-                return Weapon(items_data["weapons"][item_name])
-            elif item_name in items_data["consumables"]:
-                return Consumable(items_data["consumables"][item_name])
-            else:
-                print(f"Item {item_name} not found in the items data.")
+    def __str__(self):
+        return f"{self.name} - {self.description}"
 
-    def print_inventory(self):
-        print(f"{self.name}'s Inventory:")
-        if not self.inventory:
-            print("Your inventory is empty.")
-        else:
-            for index, item in enumerate(self.inventory, 1):
-                print(f"{index}. {item.name} - {item.description if hasattr(item, 'description') else 'No description'}")
+    def take_damage(self, damage):
+        self.health -= max(0, damage - self.defense)
+        if self.health < 0:
+            self.health = 0
 
+    def is_alive(self):
+        return self.health > 0
+    
+    def spawn_in_map(self, position, quantity=1):
+        for _ in range(quantity):
+            self.position = position
 
-    def pick_up_item(self, item):
-        from logic.gameloop import game_map
-        self.inventory.append(item)
-        print(f"{self.name} picked up {item.name}.")
-        game_map.remove_loot(self.position, [item])
-
-    def drop_item(self, item):
-        if item in self.inventory:
-            self.inventory.remove(item)
-            from logic.gameloop import game_map
-            game_map.drop_loot(self.position, [item])
-            print(f"{self.name} dropped {item.name} on the ground.")
-        else:
-            print(f"{self.name} does not have {item.name} in their inventory.")
-
-    def remove_item(self, item):
-        if item in self.inventory:
-            self.inventory.remove(item)
-        else:
-            print(f"{self.name} does not have {item.name} in their inventory.")
-
-    # Effects
-    def effect(self, effect, amount):
-        if effect == "health":
-            self.health += amount
-            print(f"{self.name} gained {amount} health.")
-        elif effect == "defense":
-            self.defense += amount
-            print(f"{self.name} gained {amount} defense.")
-        else:
-            print(f"Effect {effect} not found.")
-
-    # Combat
-    def die(self):
-        print(f"{self.name} has died!")
-
-
-## PLAYER ##
 class Player(Entity):
-    def __init__(self, data):
-        super().__init__(data)
-        self.position = (1, 1)
+    def __init__(self, player_data):
+        super().__init__(
+            player_data["name"], 
+            player_data["symbol"], 
+            player_data["description"],
+            player_data["health"], 
+            player_data["maxHealth"], 
+            player_data["attack"], 
+            player_data["defense"], 
+            player_data["level"], 
+            player_data["gold"], 
+            player_data["inventory"], 
+            player_data["position"]
+        )
 
-    def move(self, direction, game_map):
-        x, y = self.position
-        if direction == "z":  # Haut
-            new_position = (x, y - 1)
-        elif direction == "s":  # Bas
-            new_position = (x, y + 1)
-        elif direction == "q":  # Gauche
-            new_position = (x - 1, y)
-        elif direction == "d":  # Droite
-            new_position = (x + 1, y)
-        else:
-            new_position = self.position
+    def __str__(self):
+        return f"{self.name} - {self.description}"
 
-        if self.is_position_valid(new_position, game_map):
-            self.position = new_position
-            self.check_for_enemy(new_position, game_map)
-        elif self.is_position_enemy(new_position, game_map):
-            print("You encounter an enemy!")
-        elif self.position in game_map.loot_on_tiles:
-            game_map.display_loot(self.position)
-        else:
-            print("Invalid move!")
+    def move(self, direction_input, map_obj):
+        direction_map = {
+            "up": (-1, 0), "z": (-1, 0), "n": (-1, 0), "north": (-1, 0),
+            "down": (1, 0), "s": (1, 0), "south": (1, 0),
+            "left": (0, -1), "q": (0, -1), "a": (0, -1), "west": (0, -1),
+            "right": (0, 1), "d": (0, 1), "east": (0, 1)
+        }
 
-    def is_position_valid(self, position, game_map):
-        x, y = position
-        return 0 <= x < len(game_map.current_map_tileset[0]) and 0 <= y < len(game_map.current_map_tileset)
+        if direction_input in direction_map:
+            dx, dy = direction_map[direction_input]
+            new_position = (self.position[0] + dx, self.position[1] + dy)
 
-    def is_position_enemy(self, position, game_map):
-        for entity in game_map.inventory:
-            if entity.position == position:
-                return True
-        return False
+            if map_obj.is_move_valid(new_position):
+                entity_at_new_position = next((ent for ent in map_obj.entities if ent.position == new_position), None)
+                item_at_new_position = next((item for item in map_obj.items if item.position == new_position), None)
 
-    def check_for_enemy(self, position, game_map):
-        for enemy in game_map.entities:
-            if enemy.position == position:
-                print(f"You encounter {enemy.name}!")
-                combat_manager = CombatManager(self, enemy)
-                combat_manager.start_combat()
-                break
-
-    # Inventory
-    def use_inventory(self):
-        if not self.inventory:
-            print("Your inventory is empty.")
-            return
-
-        print(f"Inventory: {self.name}")
-        for i, item in enumerate(self.inventory):
-            print(f"{i + 1}. {item.name} - {item.description}")
-
-        choice = input("Choose an item to use (number): ")
-
-        if choice.isdigit():
-            choice = int(choice) - 1
-            if 0 <= choice < len(self.inventory):
-                item = self.inventory[choice]
-                if isinstance(item, Consumable):
-                    item.use(self)
-                    self.inventory.remove(item)
-                else:
-                    print("You can't use this item.")
+                if entity_at_new_position:
+                    u.clear_screen()
+                    print(f"Warning: You have encountered a {entity_at_new_position.name}!")
+                elif item_at_new_position:
+                    print(f"Congratulations: You have found a {item_at_new_position.name}!")
+                
+                self.position = new_position
+                print(f"{self.name} moved {direction_input} to {new_position}.")
             else:
-                print("Invalid choice.")
+                print(f"Move to {new_position} is blocked.")
         else:
-            print("Invalid input.")
+            print(f"Invalid direction '{direction_input}'.")
 
-## ENEMIES ##
 class Enemy(Entity):
-    def __init__(self, data, position):
-        super().__init__(data, position)
-        self.loot = data.get("loot", [])
-        self.position = position
+    def __init__(self, enemy_data):
+        super().__init__(
+            enemy_data["name"], 
+            enemy_data["symbol"], 
+            enemy_data["description"],
+            enemy_data["health"], 
+            enemy_data["maxHealth"], 
+            enemy_data["attack"], 
+            enemy_data["defense"], 
+            random.randint(enemy_data["level"]["min"], enemy_data["level"]["max"]), 
+            enemy_data["gold"], 
+            enemy_data["inventory"], 
+            enemy_data["position"]
+        )
 
-    def setup_loot_in_inventory(self):
-        for item in loot_data[self.loot]["items"]:
-            item_name = item["name"]
-            item_quantity = item["quantity"]
-            for _ in range(item_quantity):
-                self.inventory.append(self.add_item(item_name))
-                print(f"Adding {item_name} to {self.name}'s inventory.")
+class Slime(Enemy):
+    def __init__(self):
+        slime_data = u.entities_data["enemies"]["slime"]
+        super().__init__(slime_data)
 
-    def use_inventory(self):
-        if not self.inventory:
-            print(f"{self.name}'s inventory is empty.")
-            return
+class Goblin(Enemy):
+    def __init__(self):
+        goblin_data = u.entities_data["enemies"]["goblin"]
+        super().__init__(goblin_data)
 
-        print(f"Inventory: {self.name}")
-        for i, item in enumerate(self.inventory):
-            print(f"{i + 1}. {item.name} - {item.description}")
-
-        choice = input("Choose an item to use (number): ")
-
-        if choice.isdigit():
-            choice = int(choice) - 1
-            if 0 <= choice < len(self.inventory):
-                item = self.inventory[choice]
-                if isinstance(item, Consumable):
-                    item.use(self)
-                    self.inventory.remove(item)
-                else:
-                    print("You can't use this item.")
-            else:
-                print("Invalid choice.")
-        else:
-            print("Invalid input.")
-
-    # Combat
-    def die(self):
-        super().die()
-        from logic.gameloop import game_map
-        game_map.drop_loot(self.position, self.inventory)
-        print(f"{self.name} dropped their loot on the ground!")
+def get_class_from_name(class_name):
+    return globals()[class_name]

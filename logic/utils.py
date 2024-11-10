@@ -1,31 +1,32 @@
 import os
 import json
 
-def load_data():
+def load_json(file_path):
     try:
-        with open("data/entities.json", "r") as file:
-            entities_data = json.load(file)
-        
-        with open("data/map.json", "r") as file:
-            map_data = json.load(file)
-        
-        with open("data/items.json", "r") as file:
-            items_data = json.load(file)
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        print(f"Error: File not found - {file_path}")
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format - {file_path}")
+    except Exception as e:
+        print(f"Error loading {file_path}: {e}")
+    return None
 
-        with open("data/loot.json", "r") as file:
-            loot_data = json.load(file)
-        
-        return entities_data, map_data, items_data, loot_data
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        exit()
+def load_game_data():
+    entities_data = load_json("data/entities.json")
+    lootable_data = load_json("data/lootable.json")
+    map_data = load_json("data/map.json")
+    tiles_data = load_json("data/tiles.json")
+    items_data = load_json("data/items.json")
 
-entities_data, map_data, items_data, loot_data = load_data()
+    if None in [entities_data, lootable_data, map_data, tiles_data, items_data]:
+        print("Error: Some data files could not be loaded correctly.")
+        return None, None, None, None, None
 
-def exit_game():
-    print("Exiting game...")
-    input("Press any key to continue...")
-    quit()
+    return entities_data, lootable_data, map_data, tiles_data, items_data
+
+entities_data, lootable_data, map_data, tiles_data, items_data = load_game_data()
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')

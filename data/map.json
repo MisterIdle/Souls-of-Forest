@@ -1,41 +1,61 @@
 {
-    "tiles": {
-        "Forest": {
-            "name": "Forest",
-            "description": "A dense forest with tall trees and thick underbrush.",
-            "symbol": "F"
-        },
-        "Cave": {
-            "name": "Cave",
-            "description": "A dark, damp cave with stalactites and stalagmites.",
-            "symbol": "C"
-        },
-        "Teleporter": {
-            "name": "Teleporter",
-            "description": "A magical portal that transports you to another location.",
-            "symbol": "T"
-        }
+    "Tutorial": {
+        "name": "Tutorial",
+        "description": "A tutorial map.",
+        "tiles": [
+            ["F", "F", "F", "F"],
+            ["F", "F", "F", "F"],
+            ["F", "F", "F", "F"],
+            ["F", "F", "F", "F"],
+            ["F", "F", "F", "F"]
+        ],
+        "entities": [
+            {
+                "name": "Player",
+                "position": [1, 0],
+                "quantity": 1
+            },
+            {
+                "name": "Slime",
+                "position": [1, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [2, 2],
+                "quantity": 1
+            }
+        ],
+        "items": [
+            {
+                "name": "Knife",
+                "position": [1, 1],
+                "quantity": 1
+            }
+        ]
     },
 
-    "layout": {
-        "Tutoriel": {
-            "name": "Tutoriel",
-            "description": "A small map to learn the basics of the game.",
-            "tileset": [
-                ["F", "F", "F"],
-                ["F", "C", "F"],
-                ["F", "F", "F"]
-            ],
-            "inventory": {
-                "entities": [
-                    {"name": "goblin", "position": [1, 1], "quantity": 1}
-                ],
-                "items": [
-                    {"name": "sword", "position": [0, 0], "quantity": 1},
-                    {"name": "health_potion", "position": [2, 2], "quantity": 5},
-                    {"name": "sword", "position": [2, 2], "quantity": 2}
-                ]
+    "Forest": {
+        "name": "Forest",
+        "description": "A dense forest.",
+        "tiles": [
+            ["F", "F", "F", "F"],
+            ["F", "F", "F", "F"],
+            ["F", "F", "F", "F"]
+        ],
+        "entities": [
+            {
+                "name": "Slime",
+                "position": [2, 2],
+                "quantity": 1
             }
-        }
+        ],
+        "items": [
+            {
+                "name": "Knife",
+                "position": [3, 3],
+                "quantity": 1
+            }
+        ]
     }
 }

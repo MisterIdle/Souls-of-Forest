@@ -1,8 +1,7 @@
-from logic.gameloop import main_menu
+import logic.loop as gameloop
 
-## MAIN ##
 def main():
-    main_menu()
+    gameloop.main_menu()
 
 if __name__ == "__main__":
     main()

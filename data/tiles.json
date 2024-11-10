@@ -1,0 +1,20 @@
+{
+    "F": {
+        "name": "Forest",
+        "symbol": "F",
+        "description": "A dense forest.",
+        "blocksMovement": false
+    },
+    "G": {
+        "name": "Grass",
+        "symbol": "G",
+        "description": "Grassy terrain.",
+        "blocksMovement": false
+    },
+    "M": {
+        "name": "Mountain",
+        "symbol": "M",
+        "description": "A tall mountain.",
+        "blocksMovement": true
+    }
+}

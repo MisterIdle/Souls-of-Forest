@@ -1,0 +1,13 @@
+{
+    "lootable": [
+        {
+            "name": "Player",
+            "loot": [
+                {
+                    "name": "Knife",
+                    "quantity": 1
+                }
+            ]
+        }
+    ]
+}
