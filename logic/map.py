@@ -1,6 +1,8 @@
 import logic.entities as e
 import logic.items as i
 import logic.utils as u
+import logic.combat as c
+import logic.loop as l
 
 class Map:
     current_map = None
@@ -10,10 +12,13 @@ class Map:
         self.map_name = map_name
         self.map_data = map_data
         self.tiles_data = tiles_data
+        
+        tile_items = {}
+        tile_entities = {}
 
         self.map = self.create_map()
-        self.entities = self.create_entities()
-        self.items = self.create_items()
+        self.entities = self.create_entities(tile_entities)
+        self.items = self.create_items(tile_items)
 
         self.current_map = self
         self.current_map_name = self.map_name
@@ -24,8 +29,7 @@ class Map:
             tile_map.append([self.tiles_data[tile]["symbol"] for tile in row])
         return tile_map
 
-    def create_entities(self):
-        entities = {}
+    def create_entities(self, tile_entities):
         for entity_data in self.map_data['entities']:
             entity_name = entity_data['name']
             entity_position = tuple(entity_data['position'])
@@ -33,52 +37,77 @@ class Map:
             entity_class = e.get_class_from_name(entity_name)
 
             for _ in range(entity_quantity):
-                if entity_position not in entities:
-                    entities[entity_position] = []
+                if entity_position not in tile_entities:
+                    tile_entities[entity_position] = []
 
                 entity = entity_class()
                     
                 entity.position = entity_position
                 print(entity.position)
 
-                entities[entity_position].append(entity)
+                tile_entities[entity_position].append(entity)
                 print(f"Entity {entity_name} created at {entity_position}.")
 
-        return entities
+        return tile_entities
 
-    def create_items(self):
-        items = {}
+    def create_items(self, tile_items):
         for item_data in self.map_data['items']:
             item_name = item_data['name']
             item_position = tuple(item_data['position'])
             item_class = i.get_class_from_name(item_name)
 
-            if item_position not in items:
-                items[item_position] = []
+            if item_position not in tile_items:
+                tile_items[item_position] = []
             item = item_class()
             item.position = item_position
-            items[item_position].append(item)
+            tile_items[item_position].append(item)
             print(f"Item {item_name} created at {item_position}.")
-        return items
-
-    def check_for_entity_collision(self, player_position):
-        entities_at_position = self.entities.get(player_position, [])
-        if entities_at_position:
-            print(f"Player steps on {len(entities_at_position)} entities:")
-            for entity in entities_at_position:
-                if entity.name != "Player":
-                    print(f"  {entity.name}!")
-            return entities_at_position[0]
-        return None
+        return tile_items
     
-    def check_for_item_collision(self, player_position):
-        items_at_position = self.items.get(player_position, [])
-        if items_at_position:
-            print(f"Player steps on {len(items_at_position)} items:")
+    def remove_entity(self, entity):
+        entities_at_position = self.entities.get(entity.position, [])
+        print(entities_at_position)
+        if entity in entities_at_position:
+            entities_at_position.remove(entity)
+            if not entities_at_position:
+                del self.entities[entity.position]
+            print(f"Entity {entity.name} removed from {entity.position}.")
+        else:
+            print(f"Entity {entity.name} not found at {entity.position}.")
+                
+    def check_for_entity_collision(self, player_position):
+        if player_position in self.entities:
+            entities_at_position = self.entities[player_position]
+            for entity in entities_at_position:
+                combat = c.Combat(l.player, entity)
+                combat.start_combat()
+                if l.player.health <= 0:
+                    l.player.die()
+                    break
+                if entity.health <= 0:
+                    self.remove_entity(entity)
+                    break
+
+    def show_items_on_tile(self, player_position):
+        if player_position in self.items:
+            items_at_position = self.items[player_position]
             for item in items_at_position:
-                print(f"  {item.name}!")
-            return items_at_position[0]
-        return None
+                print(f"Found item {item.name} at {player_position}.")
+
+    def pick_up_item(self, player_position):
+        if player_position in self.items:
+            items_at_position = self.items[player_position]
+            for item in items_at_position:
+                print(f"Player picked up {item.name}.")
+            del self.items[player_position]
+
+
+    def drop_item(self, item):
+        if item.position not in self.items:
+            self.items[item.position] = []
+        self.items[item.position].append(item)
+        print(f"Item {item.name} added to tile {item.position}.")
+
 
     def is_move_valid(self, new_position):
         x, y = new_position
@@ -91,8 +120,13 @@ class Map:
     def display(self, player_position=None):
         for x, row in enumerate(self.map):
             for y, tile_symbol in enumerate(row):
-                if (x, y) == player_position:
+                position = (x, y)
+                if position == player_position:
                     print(u.entities_data["player"]["symbol"], end=" ")
+                elif position in self.items and self.items[position]:
+                    print("L", end=" ")
+                elif position in self.entities and self.entities[position]:
+                    print(self.entities[position][0].symbol, end=" ")
                 else:
                     print(tile_symbol, end=" ")
             print()

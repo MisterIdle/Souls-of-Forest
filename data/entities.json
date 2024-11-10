@@ -4,7 +4,7 @@
         "symbol": "@",
         "description": "The player character.",
         "health": 10,
-        "maxHealth": 10,
+        "max_health": 10,
         "attack": 1,
         "defense": 1,
         "level": 1,
@@ -19,7 +19,7 @@
             "symbol": "s",
             "description": "A small, green slime.",
             "health": 5,
-            "maxHealth": 5,
+            "max_health": 5,
             "attack": 1,
             "defense": 0,
             "level": {
@@ -36,7 +36,7 @@
             "symbol": "g",
             "description": "A small, green goblin.",
             "health": 10,
-            "maxHealth": 10,
+            "max_health": 10,
             "attack": 2,
             "defense": 1,
             "level": {

@@ -29,9 +29,9 @@ def new_game():
     
     game_loop()
 
-
 def game_loop():
     print("Game loop")
+    player.print_stats()
     print("Use [Z/Q/S/D] or [N/W/S/E] to move")
     print("[B] bag")
     print("[X] Exit")
@@ -43,7 +43,10 @@ def game_loop():
         game_loop()
     elif choice == "b":
         print("Opening bag")
-        player.print_inventory()
+        player.use_inventory()
+        game_loop()
+    elif choice == "p":
+        player.pick_up_item()
         game_loop()
     elif choice == "x":
         print("Exiting game")
