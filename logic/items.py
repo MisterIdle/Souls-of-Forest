@@ -8,13 +8,11 @@ class Item:
         self.description = description
         self.value = value
         self.effect = effect
+        self.position = None
 
     def __str__(self):
         return f"{self.name} - {self.description}"
-    
-    def spawn_in_map(self, position, quantity=1):
-        for _ in range(quantity):
-            self.position = position
+
 
 class Weapon(Item):
     def __init__(self, weapon_data):

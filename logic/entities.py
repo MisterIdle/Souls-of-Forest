@@ -1,6 +1,9 @@
 import random
 import logic.utils as u
 import logic.map as m
+import logic.items as i
+
+player = None
 
 class Entity:
     def __init__(self, name, symbol, description, health, max_health, attack, defense, level, gold, inventory, position):
@@ -14,7 +17,8 @@ class Entity:
         self.level = level
         self.gold = gold
         self.inventory = inventory
-        self.position = position
+        self.position = tuple(position)
+        self.init_loot()
 
     def __str__(self):
         return f"{self.name} - {self.description}"
@@ -26,10 +30,19 @@ class Entity:
 
     def is_alive(self):
         return self.health > 0
-    
-    def spawn_in_map(self, position, quantity=1):
-        for _ in range(quantity):
-            self.position = position
+
+    def init_loot(self):
+        loot_key = f"loot_{self.name.lower()}"
+        loot_data = u.lootable_data.get(loot_key, None)
+        if loot_data:
+            for item_data in loot_data["items"]:
+                item_name = item_data["name"]
+                quantity = item_data["quantity"]
+                for _ in range(quantity):
+                    item_class = i.get_class_from_name(item_name)
+                    print(f"Entity {self.name} has loot: {item_name}")
+                    item = item_class()
+                    self.inventory.append(item)
 
 class Player(Entity):
     def __init__(self, player_data):
@@ -50,34 +63,33 @@ class Player(Entity):
     def __str__(self):
         return f"{self.name} - {self.description}"
 
-    def move(self, direction_input, map_obj):
-        direction_map = {
-            "up": (-1, 0), "z": (-1, 0), "n": (-1, 0), "north": (-1, 0),
-            "down": (1, 0), "s": (1, 0), "south": (1, 0),
-            "left": (0, -1), "q": (0, -1), "a": (0, -1), "west": (0, -1),
-            "right": (0, 1), "d": (0, 1), "east": (0, 1)
-        }
-
-        if direction_input in direction_map:
-            dx, dy = direction_map[direction_input]
-            new_position = (self.position[0] + dx, self.position[1] + dy)
-
-            if map_obj.is_move_valid(new_position):
-                entity_at_new_position = next((ent for ent in map_obj.entities if ent.position == new_position), None)
-                item_at_new_position = next((item for item in map_obj.items if item.position == new_position), None)
-
-                if entity_at_new_position:
-                    u.clear_screen()
-                    print(f"Warning: You have encountered a {entity_at_new_position.name}!")
-                elif item_at_new_position:
-                    print(f"Congratulations: You have found a {item_at_new_position.name}!")
-                
-                self.position = new_position
-                print(f"{self.name} moved {direction_input} to {new_position}.")
-            else:
-                print(f"Move to {new_position} is blocked.")
+    def move(self, direction, game_map):
+        x, y = self.position
+        if direction in ["z", "n"]:  # North
+            new_position = (x - 1, y)
+        elif direction == "s":       # South
+            new_position = (x + 1, y)
+        elif direction in ["q", "w"]:  # West
+            new_position = (x, y - 1)
+        elif direction in ["d", "e"]:  # East
+            new_position = (x, y + 1)
         else:
-            print(f"Invalid direction '{direction_input}'.")
+            return
+
+        if game_map.is_move_valid(new_position):
+            self.position = new_position
+            print(f"Player moves to {new_position}")
+            game_map.check_for_entity_collision(self.position)
+            game_map.check_for_item_collision(self.position)
+
+            game_map.display(new_position)
+        else:
+            print("Invalid move, try again.")
+
+    def print_inventory(self):
+        print("Inventory:")
+        for item in self.inventory:
+            print(f"  {item}")
 
 class Enemy(Entity):
     def __init__(self, enemy_data):

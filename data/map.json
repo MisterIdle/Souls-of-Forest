@@ -11,11 +11,6 @@
         ],
         "entities": [
             {
-                "name": "Player",
-                "position": [1, 0],
-                "quantity": 1
-            },
-            {
                 "name": "Slime",
                 "position": [1, 1],
                 "quantity": 1
@@ -29,7 +24,12 @@
         "items": [
             {
                 "name": "Knife",
-                "position": [1, 1],
+                "position": [3, 3],
+                "quantity": 2
+            },
+            {
+                "name": "HealthPotion",
+                "position": [3, 3],
                 "quantity": 1
             }
         ]

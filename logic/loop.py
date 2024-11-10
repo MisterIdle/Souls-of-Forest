@@ -20,23 +20,30 @@ def main_menu():
 
 def new_game():
     print("Starting new game")
-    global game_map
+    global game_map, player
     game_name = "Tutorial"
     game_map = m.Map(u.map_data[game_name], u.tiles_data, game_name)
-    global player
-    player = game_map.entities[0]
+
+    player = e.Player(u.entities_data["player"])
+    print(player)
+    
     game_loop()
+
 
 def game_loop():
     print("Game loop")
-    game_map.display()
     print("Use [Z/Q/S/D] or [N/W/S/E] to move")
+    print("[B] bag")
     print("[X] Exit")
 
     choice = input("Enter choice: ").strip().lower()
 
     if choice in ["z", "q", "s", "d", "n", "w", "e"]:
         player.move(choice, game_map)
+        game_loop()
+    elif choice == "b":
+        print("Opening bag")
+        player.print_inventory()
         game_loop()
     elif choice == "x":
         print("Exiting game")

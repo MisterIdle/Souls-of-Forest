@@ -1,13 +1,26 @@
 {
-    "lootable": [
-        {
-            "name": "Player",
-            "loot": [
-                {
-                    "name": "Knife",
-                    "quantity": 1
-                }
-            ]
-        }
-    ]
+    "loot_player": {
+        "items": [
+            {
+                "name": "Sword",
+                "quantity": 1
+            },
+            {
+                "name": "HealthPotion",
+                "quantity": 2
+            }
+        ]
+    },
+    "loot_slime": {
+        "items": [
+            {
+                "name": "Knife",
+                "quantity": 1
+            },
+            {
+                "name": "HealthPotion",
+                "quantity": 1
+            }
+        ]
+    }
 }
