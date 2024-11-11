@@ -29,7 +29,8 @@ class Entity:
             self.die()
 
     def print_stats(self):
-        print(f"NAME: {self.name} - ATK: {self.attack} - DEF: {self.defense} - HP: {self.health}/{self.max_health} - LVL: {self.level} - GOLD: {self.gold}")
+        print(f"{self.name} - Level {self.level}")
+        print(f"HP: {self.health}/{self.max_health} - ATK: {self.attack} - DEF: {self.defense}")
 
     def init_loot(self):
         loot_key = f"loot_{self.name.lower()}"
@@ -53,7 +54,9 @@ class Entity:
 
 
     def use_inventory(self):
-        print("Inventory:")
+        u.clear_screen()
+        u.load_ascii_image("bag")
+        print("Bag:")
         self.print_inventory()
         print("[use] [drop] [exit]")
         choice = input("Enter choice: ").strip().lower()
@@ -127,9 +130,7 @@ class Player(Entity):
             self.position = new_position
             print(f"Player moves to {new_position}")
             game_map.check_for_entity_collision(self.position)
-            game_map.show_items_on_tile(self.position)
-
-            game_map.display(new_position)
+            game_map.check_for_teleporter(self.position)
         else:
             print("Invalid move, try again.")
 
@@ -164,9 +165,7 @@ class Player(Entity):
         print(f"Player dropped item {item.name}")
         item.position = self.position 
         l.game_map.drop_item(item)
-
-        
-
+              
 class Enemy(Entity):
     def __init__(self, enemy_data):
         super().__init__(

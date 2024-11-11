@@ -32,7 +32,14 @@
                 "position": [3, 3],
                 "quantity": 1
             }
-        ]
+        ],
+        "teleporters": [
+            {
+                "position": [2, 0],
+                "destination": "Forest",
+                "destination_coords": [2, 0]
+            }
+        ]   
     },
 
     "Forest": {
@@ -55,6 +62,13 @@
                 "name": "Knife",
                 "position": [3, 3],
                 "quantity": 1
+            }
+        ],
+        "teleporters": [
+            {
+                "position": [2, 3],
+                "destination": "Tutorial",
+                "destination_coords": [0, 0]
             }
         ]
     }

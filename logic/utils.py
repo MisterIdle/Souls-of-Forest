@@ -30,3 +30,14 @@ entities_data, lootable_data, map_data, tiles_data, items_data = load_game_data(
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def load_ascii_image(filename):
+    try:
+        with open(f"images/{filename}.txt", "r", encoding="utf-8") as file:
+            print(file.read())
+    except FileNotFoundError:
+        print(f"Image '{filename}.txt' not found.")
+        return ""
+    except UnicodeDecodeError:
+        print(f"Error decoding the file '{filename}.txt'. Ensure the file is in UTF-8 encoding.")
+        return ""

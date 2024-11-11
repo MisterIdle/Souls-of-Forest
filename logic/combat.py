@@ -1,5 +1,5 @@
-import logic.entities as e
 import logic.items as i
+import logic.utils as u
 
 class Combat:
     def __init__(self, player, enemy):
@@ -20,10 +20,15 @@ class Combat:
             if self.player.health <= 0:
                 break
 
-    def player_turn(self):
-        self.player.print_stats()
-        print("vs")
+    def header(self):
+        u.clear_screen()
+        u.load_ascii_image(self.enemy.name)
         self.enemy.print_stats()
+        print("=" * 20)
+        self.player.print_stats()
+    
+    def player_turn(self):
+        self.header()
         print("Player turn")
         choice = input("Enter choice: [attack] [use] [run] ").strip().lower()
         
@@ -70,9 +75,7 @@ class Combat:
             print("Invalid input")
 
     def enemy_turn(self):
-        self.player.print_stats()
-        print("vs")
-        self.enemy.print_stats()
+        self.header()
         if self.enemy.health <= 0:
             return
 
@@ -84,6 +87,7 @@ class Combat:
                 self.enemy_use_item()
             else:
                 self.enemy_attack()
+        input("Press Enter to continue...")
 
     def enemy_attack(self):
         for index, item in enumerate(self.enemy.inventory):

@@ -6,8 +6,10 @@ game_map = None
 player = None
 
 def main_menu():
-    print("Main menu")
+    u.clear_screen()
+    print("=== Main Menu ===")
     print("[1] Start game")
+    print("[2] Continue")
     print("[X] Exit")
     choice = input("Enter choice: ")
     if choice == "1":
@@ -19,21 +21,35 @@ def main_menu():
         main_menu()
 
 def new_game():
+    u.clear_screen()
     print("Starting new game")
     global game_map, player
-    game_name = "Tutorial"
-    game_map = m.Map(u.map_data[game_name], u.tiles_data, game_name)
+    
+    m.Map.load_all_maps()
+    game_map = m.Map.get_map('Tutorial')
+    if game_map is None:
+        print("Error: 'forest' map could not be loaded.")
+        return
+    
+    print("Map loaded")
 
     player = e.Player(u.entities_data["player"])
-    print(player)
+    player.name = input("Enter player name: ")
     
+    input("Press Enter to start game")
     game_loop()
 
+
 def game_loop():
-    print("Game loop")
+    u.clear_screen()
+    print("=== Game ===")
     player.print_stats()
-    print("Use [Z/Q/S/D] or [N/W/S/E] to move")
-    print("[B] bag")
+    
+    game_map.display(player.position)
+    
+    print("[Z/Q/S/D] Move or [N]orth/[W]est/[E]ast/[S]outh")
+    print("[B] Bag")
+    print("[P] Pick up item")
     print("[X] Exit")
 
     choice = input("Enter choice: ").strip().lower()
@@ -53,3 +69,4 @@ def game_loop():
     else:
         print("Invalid choice")
         game_loop()
+
