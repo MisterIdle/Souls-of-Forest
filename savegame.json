@@ -3,12 +3,12 @@
         "name": "",
         "symbol": "@",
         "description": "The player character.",
-        "health": 15,
-        "max_health": 15,
-        "attack": 2,
-        "defense": 2,
-        "level": 2,
-        "gold": 0,
+        "health": 10,
+        "max_health": 10,
+        "attack": 1,
+        "defense": 1,
+        "level": 1,
+        "gold": 200,
         "inventory": [
             {
                 "name": "Sword",
@@ -30,13 +30,20 @@
                 "value": 10,
                 "effect": "Healing",
                 "position": null
+            },
+            {
+                "name": "MapScroll",
+                "description": "Print the map",
+                "value": 0,
+                "effect": "Map",
+                "position": null
             }
         ],
         "position": [
             0,
             2
         ],
-        "current_map": "Forest"
+        "current_map": "Tutorial"
     },
     "explored_maps": {
         "Tutorial": {
@@ -73,55 +80,7 @@
                     "F"
                 ]
             ],
-            "entities": [
-                {
-                    "name": "Slime",
-                    "symbol": "s",
-                    "description": "A small, green slime.",
-                    "health": 5,
-                    "max_health": 5,
-                    "attack": 1,
-                    "defense": 1,
-                    "level": 2,
-                    "gold": 5,
-                    "inventory": [
-                        {
-                            "name": "HealthPotion",
-                            "description": "A small health potion",
-                            "value": 10,
-                            "effect": "Healing",
-                            "position": null
-                        },
-                        {
-                            "name": "HealthPotion",
-                            "description": "A small health potion",
-                            "value": 10,
-                            "effect": "Healing",
-                            "position": null
-                        }
-                    ],
-                    "position": [
-                        1,
-                        1
-                    ]
-                },
-                {
-                    "name": "Goblin",
-                    "symbol": "g",
-                    "description": "A small, green goblin.",
-                    "health": 10,
-                    "max_health": 10,
-                    "attack": 2,
-                    "defense": 1,
-                    "level": 2,
-                    "gold": 10,
-                    "inventory": [],
-                    "position": [
-                        2,
-                        2
-                    ]
-                }
-            ],
+            "entities": [],
             "items": [
                 {
                     "name": "Knife",
@@ -166,54 +125,21 @@
                         0
                     ]
                 }
-            ]
-        },
-        "Forest": {
-            "name": "Forest",
-            "tiles": [
-                [
-                    "F",
-                    "F",
-                    "F",
-                    "F"
-                ],
-                [
-                    "F",
-                    "F",
-                    "F",
-                    "F"
-                ],
-                [
-                    "F",
-                    "F",
-                    "F",
-                    "F"
-                ]
             ],
-            "entities": [],
-            "items": [
+            "shop": [
                 {
-                    "name": "Knife",
-                    "description": "A small knife",
-                    "value": 1,
-                    "effect": "Damage",
                     "position": [
                         3,
-                        3
-                    ]
-                }
-            ],
-            "teleporters": [
+                        0
+                    ],
+                    "name": "Shop"
+                },
                 {
                     "position": [
-                        2,
-                        3
+                        3,
+                        1
                     ],
-                    "destination": "Tutorial",
-                    "destination_coords": [
-                        0,
-                        0
-                    ]
+                    "name": "Blacksmith"
                 }
             ]
         }

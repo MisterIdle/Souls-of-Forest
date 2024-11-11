@@ -1,6 +1,8 @@
 import random
 import logic.utils as u
 import logic.map as m
+import logic.entities as e
+import logic.loop as l
 
 class Item:
     def __init__(self, name, description, value, effect):
@@ -9,9 +11,6 @@ class Item:
         self.value = value
         self.effect = effect
         self.position = None
-
-    def __str__(self):
-        return f"{self.name} - {self.description}"
     
     def get_data(self):
         return {
@@ -100,3 +99,13 @@ class HealthPotion(Consumable):
 
 def get_class_from_name(item_name):
     return globals()[item_name]
+
+class MapScroll(Consumable):
+    def __init__(self):
+        map_scroll_data = u.items_data["scrolls"]["map_scroll"]
+        super().__init__(map_scroll_data)
+
+    def use(self, entity):
+        u.clear_screen()
+        print("Map revealed:")
+        m.Map.map_display_spell(self, l.game_map, l.player.position)

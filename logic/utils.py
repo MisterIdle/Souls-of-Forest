@@ -2,6 +2,8 @@ import os
 import json
 import logic.map as m
 
+max_width = 40
+
 def load_json(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -20,14 +22,15 @@ def load_game_data():
     map_data = load_json("data/map.json")
     tiles_data = load_json("data/tiles.json")
     items_data = load_json("data/items.json")
+    shop_data = load_json("data/shop.json")
 
     if None in [entities_data, lootable_data, map_data, tiles_data, items_data]:
         print("Error: Some data files could not be loaded correctly.")
         return None, None, None, None, None
 
-    return entities_data, lootable_data, map_data, tiles_data, items_data
+    return entities_data, lootable_data, map_data, tiles_data, items_data, shop_data
 
-entities_data, lootable_data, map_data, tiles_data, items_data = load_game_data()
+entities_data, lootable_data, map_data, tiles_data, items_data, shop_data = load_game_data()
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -42,6 +45,9 @@ def load_ascii_image(filename):
     except UnicodeDecodeError:
         print(f"Error decoding the file '{filename}.txt'. Ensure the file is in UTF-8 encoding.")
         return ""
-    
+
+def line():
+    print("=" * max_width)
+
 def wait():
     input("Press Enter to continue...")

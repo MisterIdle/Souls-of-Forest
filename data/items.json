@@ -33,17 +33,11 @@
     },
 
     "scrolls": {
-        "fireball": {
-            "name": "Fireball Scroll",
-            "description": "A scroll that casts a fireball",
-            "value": 20,
-            "effect": "Damage"
-        },
-        "lightning": {
-            "name": "Lightning Scroll",
-            "description": "A scroll that casts a lightning bolt",
-            "value": 30,
-            "effect": "Damage"
+        "map_scroll": {
+            "name": "MapScroll",
+            "description": "Print the map",
+            "value": 0,
+            "effect": "Map"
         }
     }
 }

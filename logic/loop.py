@@ -56,6 +56,8 @@ def game_loop():
     u.clear_screen()
     print("=== Game ===")
     player.print_stats()
+    player.xp_to_next_level()
+    print()
     player.current_map = game_map.map_name
     
     game_map.map_display(player.position)

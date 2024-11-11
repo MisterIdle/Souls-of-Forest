@@ -62,8 +62,8 @@ class Entity:
                     self.inventory.append(item)
 
     def print_inventory(self, show_type=None):
-        sorted_inventory = sorted(self.inventory, key=lambda item: (not isinstance(item, i.Weapon), isinstance(item, i.Consumable)))
-
+        sorted_inventory = sorted(self.inventory, key=lambda item: (not isinstance(item, i.Weapon), isinstance(item, i.Consumable), item.name))
+        print(f"Inventory ({len(self.inventory)}/{self.max_inventory}):")
         for index, item in enumerate(sorted_inventory):
             if show_type is None or isinstance(item, show_type):
                 print(f"{index}. {item.name}")
@@ -76,7 +76,8 @@ class Entity:
     def use_inventory(self):
         u.clear_screen()
         u.load_ascii_image("bag")
-        print("Bag:")
+        print("== Bag ==")
+        print(f"Gold: {self.gold}")
         self.print_inventory()
         print("[use] [drop] [exit]")
         choice = input("Enter choice: ").strip().lower()
@@ -154,6 +155,7 @@ class Player(Entity):
             player_data["position"],
         )
         self.current_map = player_data["current_map"]
+        self.max_inventory = player_data["max_inventory"]
         self.experience = 0
         self.next_level = 10
 
@@ -185,8 +187,14 @@ class Player(Entity):
             print(f"Player moves to {new_position}")
             game_map.check_for_entity_collision(self.position)
             game_map.check_for_teleporter(self.position)
+            game_map.check_for_shop(new_position)
         else:
             print("Invalid move, try again.")
+
+    def inventory_full(self):
+        print("Inventory is full.")
+        u.wait()
+        return len(self.inventory) >= self.max_inventory
 
     def see_items_on_tile(self):
         if self.position in l.game_map.items:
@@ -211,6 +219,9 @@ class Player(Entity):
 
     # Inventory
     def pick_up_item(self, indices):
+        if self.inventory_full():
+            return
+        
         if isinstance(indices, str):
             try:
                 indices = [int(i.strip()) for i in indices.split(',')]
@@ -256,31 +267,38 @@ class Player(Entity):
             item.position = self.position
             l.game_map.drop_item(item)
 
-    # Leveling 
-    def gain_experience(self, experience):
-        self.experience += experience
-        print(f"Player gained {experience} experience points.")
-        if self.experience >= self.next_level:
-            self.level_up()
-
     def level_up(self):
         self.level += 1
         self.attack += 1
         self.defense += 1
         self.max_health += 5
+        self.max_inventory += 2
         self.health = self.max_health
         self.next_level = self.level * 10
         print(f"Player leveled up to level {self.level}.")
-        print(f"Player stats: ATK {self.attack} - DEF {self.defense} - HP {self.health}/{self.max_health}")
+        print(f"Player stats: ATK {self.attack} - DEF {self.defense} - HP {self.health}/{self.max_health} - INV {len(self.inventory)}/{self.max_inventory}")
         print(f"Next level at {self.next_level} experience points.")
         self.experience = 0
     
     def win_combat(self, enemy):
         u.clear_screen()
         print(f"{self.name} defeated {enemy.name}!")
-        xp_reward = enemy.level * 10
-        self.gain_experience(xp_reward)
+        xp_reward = random.randint(enemy.level, enemy.level * 2)
+        
+        self.experience += xp_reward
+        if self.experience >= self.next_level:
+            self.level_up()
+
+        self.gold += random.randint(1, enemy.gold)
+        print(f"{self.name} gained {xp_reward} experience points and {self.gold} gold.")
         u.wait()
+
+    def xp_to_next_level(self):
+        progress_percentage = int((self.experience / self.next_level) * 100)
+        progress_bar_length = 10
+        filled_length = int(progress_bar_length * progress_percentage / 100)
+        progress_bar = "[" + "=" * filled_length + "-" * (progress_bar_length - filled_length) + "]"
+        print(f"Next level: {progress_bar} {progress_percentage}%")
 
 ## ENEMIES ##
 class Enemy(Entity):

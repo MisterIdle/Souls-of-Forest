@@ -4,6 +4,7 @@ import logic.utils as u
 import logic.combat as c
 import logic.loop as l
 import logic.save as s
+import logic.shop as sh
 
 class Map:
     current_map = None
@@ -14,10 +15,13 @@ class Map:
         self.map_name = map_name
         self.map_data = map_data
         self.tiles_data = tiles_data
+        self.tile_names = [tile["name"] for tile in tiles_data.values()]
+        self.tile_descriptions = [tile["description"] for tile in tiles_data.values()]
 
         self.tile_items = {}
         self.tile_entities = {}
         self.tile_teleporters = {}
+        self.tite_shop = {}
 
         self.load_map()
 
@@ -38,14 +42,29 @@ class Map:
                     "destination_coords": teleporter["destination_coords"]
                 }
                 for position, teleporter in self.teleporters.items()
+            ],
+            "shops": [
+                {
+                    "position": position,
+                    "name": shop["name"],
+                }
+                for position, shop in self.tite_shop.items()
             ]
         }
+    
+    def get_tile_name(self, position):
+        x, y = position
+        tile_symbol = self.map[x][y]
+        return next(t["name"] for t in self.tiles_data.values() if t["symbol"] == tile_symbol)
+    
+    get_tile_description = lambda self, position: self.tile_descriptions[self.tile_names.index(self.get_tile_name(position))]
 
     def load_map(self):
         self.map = self.create_map()
         self.entities = self.create_entities(self.tile_entities)
         self.items = self.create_items(self.tile_items)
         self.teleporters = self.create_teleporters(self.tile_teleporters)
+        self.tite_shop = self.create_shop(self.tite_shop)
 
     def load_new_map(self, map_name, player_position):
         new_map = Map.get_map(map_name)
@@ -106,6 +125,16 @@ class Map:
                 "destination_coords": teleporter_destination_coords
             }
         return tile_teleporters
+    
+    def create_shop(self, tile_shop):
+        for shop_data in self.map_data['shops']:
+            shop_position = tuple(shop_data['position'])
+            shop_name = shop_data['name']
+
+            tile_shop[shop_position] = {
+                "name": shop_name
+            }
+        return tile_shop
 
     def load_all_maps():
         for map_name, map_data in u.map_data.items():
@@ -147,8 +176,13 @@ class Map:
         if player_position in self.items:
             items_at_position = self.items[player_position]
             for item in items_at_position:
-                print(f"I see {item.name} on the ground.")
-            print("[P] Pick up item\n")
+                print(f"Item {item.name} found at tile {item.position}.")
+
+    def check_for_shop(self, player_position):
+        if player_position in self.tite_shop:
+            shop_data = u.shop_data[self.tite_shop[player_position]["name"]]
+            shop_instance = sh.Shop(shop_data)
+            shop_instance.open_shop()
 
     def pick_up_item(self, player_position):
         if player_position in self.items:
@@ -170,6 +204,7 @@ class Map:
             return not tile["blocksMovement"]
         return False
     
+    # Debug map
     def map_display(self, player_position=None):
         for x, row in enumerate(self.map):
             for y, tile_symbol in enumerate(row):
@@ -180,20 +215,50 @@ class Map:
                     print("L", end=" ")
                 elif position in self.teleporters:
                     print("T", end=" ")
+                elif position in self.tite_shop:
+                    print("S", end=" ")
                 elif position in self.entities and self.entities[position]:
                     print(self.entities[position][0].symbol, end=" ")
                 else:
                     print(tile_symbol, end=" ")
             print()
 
+    # SpellMap
+    def map_display_spell(self, game_map, player_position):
+        radius = 3
+        x, y = player_position
+        u.line()
+
+        for i, row in enumerate(game_map.map):
+            for j, tile_symbol in enumerate(row):
+                if abs(i - x) + abs(j - y) <= radius:
+                    position = (i, j)
+                    if position == player_position:
+                        print(u.entities_data["player"]["symbol"], end=" ")
+                    else:
+                        print(tile_symbol, end=" ")
+                else:
+                    print(" ", end=" ")
+            print()
+        u.line()
+
+        print("Legend:")
+        print("Player: @")
+        for symbol, tile_data in game_map.tiles_data.items():
+            print(f"{symbol}: {tile_data['name']}")
+
+        u.wait()
+
     def map_compass(self, player_position):
         x, y = player_position
         compass = {
-            "North": (x - 1, y),  # North
-            "West": (x, y - 1),  # West
-            "Est": (x, y + 1),  # East
-            "South": (x + 1, y)   # South
+            "North": (x - 1, y),
+            "West": (x, y - 1),
+            "East": (x, y + 1),
+            "South": (x + 1, y)
         }
+
+        directions_info = {}
 
         for direction, position in compass.items():
             if self.is_move_valid(position):
@@ -202,11 +267,28 @@ class Map:
                 if position in self.teleporters:
                     teleporter = self.teleporters[position]
                     destination = teleporter["destination"]
-                    print(f"{direction}: Travel to {destination}")
+                    directions_info[direction] = f"Travel to {destination}"
                 else:
-                    print(f"{direction}: {tile_data['name']}")
+                    directions_info[direction] = tile_data["name"]
             else:
-                print(f"{direction}: Dense forest")
+                directions_info[direction] = "Dense forest"
 
-
+        print(f"Map: {self.map_name} - {self.map_data['description']}")
+        print()
+        print(f"Player position: {player_position}")
+        print(f"Tile name: {self.get_tile_name(player_position)}")
+        print(f"Tile description: {self.get_tile_description(player_position)}")
+        print()
+        u.line()
+        print(" " * ((u.max_width // 2) - 3) + "Compass")
+        u.line()
+        print(" " * ((u.max_width // 2) - len("North") // 2) + "North")
+        print(" " * ((u.max_width // 2) - len(directions_info["North"]) // 2) + directions_info["North"])
+        print()
+        print("West" + " " * (u.max_width - 8) + "East")
+        print(directions_info["West"] + " " * (u.max_width - len(directions_info["West"]) - len(directions_info["East"])) + directions_info["East"])
+        print()
+        print(" " * ((u.max_width // 2) - len("South") // 2) + "South")
+        print(" " * ((u.max_width // 2) - len(directions_info["South"]) // 2) + directions_info["South"])
+        u.line()
             

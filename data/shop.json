@@ -1,0 +1,46 @@
+{
+    "Shop": {
+        "name": "Mystic Goods",
+        "description": "A mystical shop full of wonders.",
+        "items": [
+            {
+                "name": "Knife",
+                "price": 10
+            },
+            {
+                "name": "Sword",
+                "price": 25
+            },
+            {
+                "name": "Axe",
+                "price": 40
+            },
+            {
+                "name": "HealthPotion",
+                "price": 15
+            },
+            {
+                "name": "MapScroll",
+                "price": 30
+            }
+        ]
+    },
+    "Blacksmith": {
+        "name": "Blacksmith",
+        "description": "A blacksmith's shop.",
+        "items": [
+            {
+                "name": "Knife",
+                "price": 10
+            },
+            {
+                "name": "Sword",
+                "price": 25
+            },
+            {
+                "name": "Axe",
+                "price": 40
+            }
+        ]
+    }
+}

@@ -1,4 +1,10 @@
 {
+    " ": {
+        "name": "Empty",
+        "symbol": " ",
+        "description": "An empty space.",
+        "blocksMovement": true
+    },
     "F": {
         "name": "Forest",
         "symbol": "F",
