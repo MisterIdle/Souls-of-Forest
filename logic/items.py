@@ -3,14 +3,24 @@ import logic.utils as u
 import logic.map as m
 
 class Item:
-    def __init__(self, name, description, value):
+    def __init__(self, name, description, value, effect):
         self.name = name
         self.description = description
         self.value = value
+        self.effect = effect
         self.position = None
 
     def __str__(self):
         return f"{self.name} - {self.description}"
+    
+    def get_data(self):
+        return {
+            "name": self.name,
+            "description": self.description,
+            "value": self.value,
+            "effect": self.effect,
+            "position": self.position
+        }
     
     def use(self, entity):
         pass
@@ -19,20 +29,28 @@ class Item:
 class Weapon(Item):
     def __init__(self, weapon_data):
         super().__init__(
-            weapon_data["name"], 
-            weapon_data["description"], 
+            weapon_data["name"],
+            weapon_data["description"],
             weapon_data["value"],
+            weapon_data["effect"]
         )
+
+        self.critical = weapon_data["critical"]
 
     def use(self, entity, target=None):
         if not target:
             print("No target to attack")
             return
         
-        miss = random.randint(1, 20) <= 5
+        miss = random.randint(1, 100) <= 30
         if miss:
             print(f"{entity.name} missed the attack.")
             return
+        
+        critical = random.randint(1, 100) <= self.critical
+        if critical:
+            self.value *= 2
+            print(f"{entity.name} critical hit with {self.name}!")
         
         damage = self.value + entity.attack - target.defense
         target.take_damage(damage)
@@ -48,6 +66,11 @@ class Sword(Weapon):
         sword_data = u.items_data["weapons"]["sword"]
         super().__init__(sword_data)
 
+class Axe(Weapon):
+    def __init__(self):
+        axe_data = u.items_data["weapons"]["axe"]
+        super().__init__(axe_data)
+
 ## CONSUMABLES ##
 class Consumable(Item):
     def __init__(self, consumable_data):
@@ -55,6 +78,7 @@ class Consumable(Item):
             consumable_data["name"], 
             consumable_data["description"], 
             consumable_data["value"],
+            consumable_data["effect"]
         )
 
     def use(self, entity):

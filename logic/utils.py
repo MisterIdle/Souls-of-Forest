@@ -1,5 +1,6 @@
 import os
 import json
+import logic.map as m
 
 def load_json(file_path):
     try:
@@ -41,3 +42,6 @@ def load_ascii_image(filename):
     except UnicodeDecodeError:
         print(f"Error decoding the file '{filename}.txt'. Ensure the file is in UTF-8 encoding.")
         return ""
+    
+def wait():
+    input("Press Enter to continue...")

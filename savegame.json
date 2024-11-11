@@ -1,0 +1,221 @@
+{
+    "player": {
+        "name": "",
+        "symbol": "@",
+        "description": "The player character.",
+        "health": 15,
+        "max_health": 15,
+        "attack": 2,
+        "defense": 2,
+        "level": 2,
+        "gold": 0,
+        "inventory": [
+            {
+                "name": "Sword",
+                "description": "A short sword with a sharp",
+                "value": 10,
+                "effect": "Damage",
+                "position": null
+            },
+            {
+                "name": "HealthPotion",
+                "description": "A small health potion",
+                "value": 10,
+                "effect": "Healing",
+                "position": null
+            },
+            {
+                "name": "HealthPotion",
+                "description": "A small health potion",
+                "value": 10,
+                "effect": "Healing",
+                "position": null
+            }
+        ],
+        "position": [
+            0,
+            2
+        ],
+        "current_map": "Forest"
+    },
+    "explored_maps": {
+        "Tutorial": {
+            "name": "Tutorial",
+            "tiles": [
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ]
+            ],
+            "entities": [
+                {
+                    "name": "Slime",
+                    "symbol": "s",
+                    "description": "A small, green slime.",
+                    "health": 5,
+                    "max_health": 5,
+                    "attack": 1,
+                    "defense": 1,
+                    "level": 2,
+                    "gold": 5,
+                    "inventory": [
+                        {
+                            "name": "HealthPotion",
+                            "description": "A small health potion",
+                            "value": 10,
+                            "effect": "Healing",
+                            "position": null
+                        },
+                        {
+                            "name": "HealthPotion",
+                            "description": "A small health potion",
+                            "value": 10,
+                            "effect": "Healing",
+                            "position": null
+                        }
+                    ],
+                    "position": [
+                        1,
+                        1
+                    ]
+                },
+                {
+                    "name": "Goblin",
+                    "symbol": "g",
+                    "description": "A small, green goblin.",
+                    "health": 10,
+                    "max_health": 10,
+                    "attack": 2,
+                    "defense": 1,
+                    "level": 2,
+                    "gold": 10,
+                    "inventory": [],
+                    "position": [
+                        2,
+                        2
+                    ]
+                }
+            ],
+            "items": [
+                {
+                    "name": "Knife",
+                    "description": "A small knife",
+                    "value": 1,
+                    "effect": "Damage",
+                    "position": [
+                        3,
+                        3
+                    ]
+                },
+                {
+                    "name": "HealthPotion",
+                    "description": "A small health potion",
+                    "value": 10,
+                    "effect": "Healing",
+                    "position": [
+                        3,
+                        3
+                    ]
+                },
+                {
+                    "name": "Axe",
+                    "description": "A small axe",
+                    "value": 15,
+                    "effect": "Damage",
+                    "position": [
+                        3,
+                        3
+                    ]
+                }
+            ],
+            "teleporters": [
+                {
+                    "position": [
+                        2,
+                        0
+                    ],
+                    "destination": "Forest",
+                    "destination_coords": [
+                        2,
+                        0
+                    ]
+                }
+            ]
+        },
+        "Forest": {
+            "name": "Forest",
+            "tiles": [
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ]
+            ],
+            "entities": [],
+            "items": [
+                {
+                    "name": "Knife",
+                    "description": "A small knife",
+                    "value": 1,
+                    "effect": "Damage",
+                    "position": [
+                        3,
+                        3
+                    ]
+                }
+            ],
+            "teleporters": [
+                {
+                    "position": [
+                        2,
+                        3
+                    ],
+                    "destination": "Tutorial",
+                    "destination_coords": [
+                        0,
+                        0
+                    ]
+                }
+            ]
+        }
+    }
+}

@@ -3,6 +3,7 @@ import logic.items as i
 import logic.utils as u
 import logic.combat as c
 import logic.loop as l
+import logic.save as s
 
 class Map:
     current_map = None
@@ -13,13 +14,32 @@ class Map:
         self.map_name = map_name
         self.map_data = map_data
         self.tiles_data = tiles_data
-        self.stats = {}
-        
+
         self.tile_items = {}
         self.tile_entities = {}
         self.tile_teleporters = {}
 
         self.load_map()
+
+    def get_data(self):
+        return {
+            "name": self.map_name,
+            "tiles": self.map,
+            "entities": [
+                entity.get_data() for entities in self.entities.values() for entity in entities
+            ],
+            "items": [
+                item.get_data() for items in self.items.values() for item in items
+            ],
+            "teleporters": [
+                {
+                    "position": position,
+                    "destination": teleporter["destination"],
+                    "destination_coords": teleporter["destination_coords"]
+                }
+                for position, teleporter in self.teleporters.items()
+            ]
+        }
 
     def load_map(self):
         self.map = self.create_map()
@@ -30,11 +50,11 @@ class Map:
     def load_new_map(self, map_name, player_position):
         new_map = Map.get_map(map_name)
         if new_map is None:
-            print(f"Map {map_name} is not loaded.")
+            print(f"Error: Map {map_name} is not loaded.")
             return
         
-        Map.current_map = new_map
-        Map.current_map_name = map_name
+        self.current_map = new_map
+        self.current_map_name = map_name
         l.player.position = player_position
 
         print(f"Player has been teleported to {map_name} at {player_position}.")
@@ -98,11 +118,12 @@ class Map:
         return Map.all_maps.get(map_name)
 
     def remove_entity(self, entity):
-        entities_at_position = self.entities.get(entity.position, [])
-        if entity in entities_at_position:
-            entities_at_position.remove(entity)
-            if not entities_at_position:
-                del self.entities[entity.position]
+        if entity.position in self.entities:
+            self.entities[entity.position].remove(entity)
+            print(f"Entity {entity.name} removed from tile {entity.position}.")
+        else:
+            print(f"Entity {entity.name} not found at tile {entity.position}.")
+
 
     def check_for_entity_collision(self, player_position):
         if player_position in self.entities:
@@ -110,12 +131,6 @@ class Map:
             for entity in entities_at_position:
                 combat = c.Combat(l.player, entity)
                 combat.start_combat()
-                if l.player.health <= 0:
-                    l.player.die()
-                    break
-                if entity.health <= 0:
-                    self.remove_entity(entity)
-                    break
 
     def check_for_teleporter(self, player_position):
         if player_position in self.teleporters:
@@ -126,18 +141,20 @@ class Map:
             print(f"Teleporting to {destination_map_name} at {destination_coords}.")
             self.load_new_map(destination_map_name, destination_coords)
 
+            l.explored_maps[self.current_map_name] = self.current_map
+
     def show_items_on_tile(self, player_position):
         if player_position in self.items:
             items_at_position = self.items[player_position]
             for item in items_at_position:
                 print(f"I see {item.name} on the ground.")
+            print("[P] Pick up item\n")
 
     def pick_up_item(self, player_position):
         if player_position in self.items:
             items_at_position = self.items[player_position]
             for item in items_at_position:
                 print(f"Player picked up {item.name}.")
-            del self.items[player_position]
 
     def drop_item(self, item):
         if item.position not in self.items:
@@ -153,7 +170,7 @@ class Map:
             return not tile["blocksMovement"]
         return False
     
-    def display(self, player_position=None):
+    def map_display(self, player_position=None):
         for x, row in enumerate(self.map):
             for y, tile_symbol in enumerate(row):
                 position = (x, y)
@@ -162,9 +179,34 @@ class Map:
                 elif position in self.items and self.items[position]:
                     print("L", end=" ")
                 elif position in self.teleporters:
-                    print("T", end=" ")  # Symbole pour le téléporteur
+                    print("T", end=" ")
                 elif position in self.entities and self.entities[position]:
                     print(self.entities[position][0].symbol, end=" ")
                 else:
                     print(tile_symbol, end=" ")
             print()
+
+    def map_compass(self, player_position):
+        x, y = player_position
+        compass = {
+            "North": (x - 1, y),  # North
+            "West": (x, y - 1),  # West
+            "Est": (x, y + 1),  # East
+            "South": (x + 1, y)   # South
+        }
+
+        for direction, position in compass.items():
+            if self.is_move_valid(position):
+                tile_symbol = self.map[position[0]][position[1]]
+                tile_data = self.tiles_data[tile_symbol]
+                if position in self.teleporters:
+                    teleporter = self.teleporters[position]
+                    destination = teleporter["destination"]
+                    print(f"{direction}: Travel to {destination}")
+                else:
+                    print(f"{direction}: {tile_data['name']}")
+            else:
+                print(f"{direction}: Dense forest")
+
+
+            

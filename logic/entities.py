@@ -1,6 +1,5 @@
 import random
 import logic.utils as u
-import logic.map as m
 import logic.items as i
 import logic.loop as l
 
@@ -21,6 +20,23 @@ class Entity:
 
     def __str__(self):
         return f"{self.name} - {self.description}"
+    
+    def get_data(self):
+        return {
+            "name": self.name,
+            "symbol": self.symbol,
+            "description": self.description,
+            "health": self.health,
+            "max_health": self.max_health,
+            "attack": self.attack,
+            "defense": self.defense,
+            "level": self.level,
+            "gold": self.gold,
+            "inventory": [
+                item.get_data() for item in self.inventory
+            ],
+            "position": self.position
+        }
                 
     def take_damage(self, damage):
         self.health -= damage
@@ -50,8 +66,12 @@ class Entity:
 
         for index, item in enumerate(sorted_inventory):
             if show_type is None or isinstance(item, show_type):
-                print(f"{index}. {item}")
-
+                print(f"{index}. {item.name}")
+                print(f"   {item.description}")
+                print(f"   {item.effect}: {item.value}")
+                if isinstance(item, i.Weapon):
+                    print(f"   Critical: {item.critical}%")
+            print()
 
     def use_inventory(self):
         u.clear_screen()
@@ -61,39 +81,63 @@ class Entity:
         print("[use] [drop] [exit]")
         choice = input("Enter choice: ").strip().lower()
         if choice == "use":
-            choice_use = input("Enter item number to use: ").strip()
+            print("\nSelect the number of the item to use, or type [back] to go back")
+            choice_use = input("> ").strip()
             if choice_use.isdigit():
                 index = int(choice_use)
                 if 0 <= index < len(self.inventory):
                     self.use_item(index)
                 else:
                     print("Invalid item number")
+                    self.use_inventory()
+            elif choice_use == "back":
+                self.use_inventory()
+            else:
+                print("Invalid choice")
+                self.use_inventory()
         elif choice == "drop":
-            choice_drop = input("Enter item number to drop: ").strip()
-            if choice_drop.isdigit():
-                index = int(choice_drop)
-                if 0 <= index < len(self.inventory):
-                    self.drop_item(index)
-                else:
-                    print("Invalid item number")
-        elif choice == "exit":
-            return
-        else:
-            print("Invalid choice")
-            self.use_inventory()
+            print("\nSelect the number(s) of the item(s) to drop (separated by commas), or type [back] to go back")
+            choice_drop = input("> ").strip()
+            if choice_drop.lower() == "back":
+                self.use_inventory()
+            else:
+                drop_indexes = choice_drop.split(',')
+                valid_indexes = []
+                for index in drop_indexes:
+                    if index.strip().isdigit():
+                        valid_indexes.append(int(index.strip()))
 
+                valid_indexes = [index for index in valid_indexes if 0 <= index < len(self.inventory)]
+                if valid_indexes:
+                    for index in valid_indexes:
+                        self.drop_item(index)
+                else:
+                    print("Invalid item numbers")
+                    self.use_inventory()
+        elif choice in ["exit", "back"]:
+            return
+        
     def use_item(self, index, target=None):
         item = self.inventory[index]
-        if isinstance(item, i.Weapon) and target is not None:
+        if isinstance(item, i.Weapon):
+            if target is None:
+                print("No target selected.")
+                return
             item.use(self, target)
         elif isinstance(item, i.Consumable):
             item.use(self)
             self.inventory.pop(index)
+        else:
+            print("Item cannot be used.")
+            return
 
     def die(self):
-        l.game_map.remove_entity(self)
+        print(f"{self.name} has died.")
+        if self.position in l.game_map.entities:
+            del l.game_map.entities[self.position]
 
 
+## PLAYERS ##
 class Player(Entity):
     def __init__(self, player_data):
         super().__init__(
@@ -107,12 +151,22 @@ class Player(Entity):
             player_data["level"], 
             player_data["gold"], 
             player_data["inventory"], 
-            player_data["position"]
+            player_data["position"],
         )
+        self.current_map = player_data["current_map"]
+        self.experience = 0
+        self.next_level = 10
 
     def __str__(self):
         return f"{self.name} - {self.description}"
-
+    
+    def get_data(self):
+        return {
+            **super().get_data(),
+            "current_map": self.current_map
+        }
+    
+    # Move
     def move(self, direction, game_map):
         x, y = self.position
         if direction in ["z", "n"]:  # North
@@ -134,38 +188,101 @@ class Player(Entity):
         else:
             print("Invalid move, try again.")
 
-    def pick_up_item(self):
-        if self.position in l.game_map.items and l.game_map.items[self.position]:
-            items_at_position = l.game_map.items[self.position]
-            print("Items available to pick up:")
-            for index, item in enumerate(items_at_position):
+    def see_items_on_tile(self):
+        if self.position in l.game_map.items:
+            items = l.game_map.items[self.position]
+            u.clear_screen()
+            u.load_ascii_image("ground")
+            print("Items on the ground:")
+
+            for index, item in enumerate(items):
                 print(f"{index}. {item.name}")
+                print(f"   {item.description}")
+                print(f"   {item.effect}: {item.value}")
+                if isinstance(item, i.Weapon):
+                    print(f"   Critical: {item.critical}%")
+                print()
+            choice = input("Select the number(s) of the item(s) to pick up (separated by commas), or type [back] to go back: ").strip().lower()
 
-            choice = input("Enter item number to pick up (or 'exit' to cancel): ").strip().lower()
-            if choice == "exit":
+            if choice == "back":
                 return
-
-            if choice.isdigit():
-                index = int(choice)
-                if 0 <= index < len(items_at_position):
-                    item = items_at_position[index]
-                    self.inventory.append(item)
-                    print(f"Player picked up {item.name}.")
-                    l.game_map.pick_up_item(self.position)
-                else:
-                    print("Invalid item number.")
             else:
-                print("Invalid input.")
-        else:
-            print("No items to pick up here.")
+                self.pick_up_item(choice)
 
+    # Inventory
+    def pick_up_item(self, indices):
+        if isinstance(indices, str):
+            try:
+                indices = [int(i.strip()) for i in indices.split(',')]
+            except ValueError:
+                print("Invalid input. Please enter valid numbers.")
+                return
+            
+        elif isinstance(indices, int):
+            indices = [indices]
 
-    def drop_item(self, index):
-        item = self.inventory.pop(index)
-        print(f"Player dropped item {item.name}")
-        item.position = self.position 
-        l.game_map.drop_item(item)
-              
+        invalid_indices = [index for index in indices if not (0 <= index < len(l.game_map.items[l.player.position]))]
+
+        if invalid_indices:
+            print(f"Invalid indices: {', '.join(map(str, invalid_indices))}. Try again.")
+            return
+        
+        indices.sort(reverse=True)
+        for index in indices:
+            item = l.game_map.items[l.player.position].pop(index)
+            print(f"Player picked up item {item.name}")
+            item.position = self.position
+            self.inventory.append(item)
+
+    def drop_item(self, indices):
+        if isinstance(indices, str):
+            try:
+                indices = [int(i.strip()) for i in indices.split(',')]
+            except ValueError:
+                print("Invalid input. Please enter valid numbers.")
+                return
+        elif isinstance(indices, int):
+            indices = [indices]
+
+        invalid_indices = [index for index in indices if not (0 <= index < len(self.inventory))]
+        if invalid_indices:
+            print(f"Invalid indices: {', '.join(map(str, invalid_indices))}. Try again.")
+            return
+        
+        indices.sort(reverse=True)
+        for index in indices:
+            item = self.inventory.pop(index)
+            print(f"Player dropped item {item.name}")
+            item.position = self.position
+            l.game_map.drop_item(item)
+
+    # Leveling 
+    def gain_experience(self, experience):
+        self.experience += experience
+        print(f"Player gained {experience} experience points.")
+        if self.experience >= self.next_level:
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.attack += 1
+        self.defense += 1
+        self.max_health += 5
+        self.health = self.max_health
+        self.next_level = self.level * 10
+        print(f"Player leveled up to level {self.level}.")
+        print(f"Player stats: ATK {self.attack} - DEF {self.defense} - HP {self.health}/{self.max_health}")
+        print(f"Next level at {self.next_level} experience points.")
+        self.experience = 0
+    
+    def win_combat(self, enemy):
+        u.clear_screen()
+        print(f"{self.name} defeated {enemy.name}!")
+        xp_reward = enemy.level * 10
+        self.gain_experience(xp_reward)
+        u.wait()
+
+## ENEMIES ##
 class Enemy(Entity):
     def __init__(self, enemy_data):
         super().__init__(
@@ -190,7 +307,7 @@ class Enemy(Entity):
             if isinstance(item, i.Consumable):
                 return True
         return False
-
+    
 class Slime(Enemy):
     def __init__(self):
         slime_data = u.entities_data["enemies"]["slime"]

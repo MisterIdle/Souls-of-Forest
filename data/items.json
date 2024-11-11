@@ -3,31 +3,32 @@
         "knife": {
             "name": "Knife",
             "description": "A small knife",
-            "value": 1
+            "value": 1,
+            "effect": "Damage",
+            "critical": 0.1
         },
-        
         "sword": {
             "name": "Sword",
             "description": "A short sword with a sharp",
-            "value": 10
+            "value": 10,
+            "effect": "Damage",
+            "critical": 0.2
         },
         "axe": {
             "name": "Axe",
             "description": "A small axe",
-            "value": 15
-        },
-        "bow": {
-            "name": "Bow",
-            "description": "A simple bow",
-            "value": 20
+            "value": 15,
+            "effect": "Damage",
+            "critical": 0.3
         }
     },
 
     "consumables": {
         "health_potion": {
-            "name": "Potion",
+            "name": "HealthPotion",
             "description": "A small health potion",
-            "value": 10
+            "value": 10,
+            "effect": "Healing"
         }
     },
 
@@ -35,12 +36,14 @@
         "fireball": {
             "name": "Fireball Scroll",
             "description": "A scroll that casts a fireball",
-            "value": 20
+            "value": 20,
+            "effect": "Damage"
         },
         "lightning": {
             "name": "Lightning Scroll",
             "description": "A scroll that casts a lightning bolt",
-            "value": 30
+            "value": 30,
+            "effect": "Damage"
         }
     }
 }

@@ -10,7 +10,8 @@
         "level": 1,
         "gold": 0,
         "inventory": [],
-        "position": [0, 0]
+        "position": [0, 0],
+        "current_map": "Tutorial"
     },
 
     "enemies": {
@@ -21,7 +22,7 @@
             "health": 5,
             "max_health": 5,
             "attack": 1,
-            "defense": 0,
+            "defense": 1,
             "level": {
                 "min": 1,
                 "max": 3
