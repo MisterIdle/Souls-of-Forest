@@ -21,13 +21,14 @@ class Map:
         self.tile_items = {}
         self.tile_entities = {}
         self.tile_teleporters = {}
-        self.tite_shop = {}
+        self.tile_shop = {}
 
         self.load_map()
 
     def get_data(self):
         return {
             "name": self.map_name,
+
             "tiles": self.map,
             "entities": [
                 entity.get_data() for entities in self.entities.values() for entity in entities
@@ -48,7 +49,7 @@ class Map:
                     "position": position,
                     "name": shop["name"],
                 }
-                for position, shop in self.tite_shop.items()
+                for position, shop in self.tile_shop.items()
             ]
         }
     
@@ -64,7 +65,7 @@ class Map:
         self.entities = self.create_entities(self.tile_entities)
         self.items = self.create_items(self.tile_items)
         self.teleporters = self.create_teleporters(self.tile_teleporters)
-        self.tite_shop = self.create_shop(self.tite_shop)
+        self.tile_shop = self.create_shop(self.tile_shop)
 
     def load_new_map(self, map_name, player_position):
         new_map = Map.get_map(map_name)
@@ -158,8 +159,9 @@ class Map:
         if player_position in self.entities:
             entities_at_position = self.entities[player_position]
             for entity in entities_at_position:
-                combat = c.Combat(l.player, entity)
+                combat = c.Combat(l.player, entity, l.game_map, l.player.last_position)
                 combat.start_combat()
+
 
     def check_for_teleporter(self, player_position):
         if player_position in self.teleporters:
@@ -179,8 +181,8 @@ class Map:
                 print(f"Item {item.name} found at tile {item.position}.")
 
     def check_for_shop(self, player_position):
-        if player_position in self.tite_shop:
-            shop_data = u.shop_data[self.tite_shop[player_position]["name"]]
+        if player_position in self.tile_shop:
+            shop_data = u.shop_data[self.tile_shop[player_position]["name"]]
             shop_instance = sh.Shop(shop_data)
             shop_instance.open_shop()
 
@@ -215,7 +217,7 @@ class Map:
                     print("L", end=" ")
                 elif position in self.teleporters:
                     print("T", end=" ")
-                elif position in self.tite_shop:
+                elif position in self.tile_shop:
                     print("S", end=" ")
                 elif position in self.entities and self.entities[position]:
                     print(self.entities[position][0].symbol, end=" ")
@@ -273,7 +275,7 @@ class Map:
             else:
                 directions_info[direction] = "Dense forest"
 
-        print(f"Map: {self.map_name} - {self.map_data['description']}")
+        print(f"Map: {self.map_name}")
         print()
         print(f"Player position: {player_position}")
         print(f"Tile name: {self.get_tile_name(player_position)}")

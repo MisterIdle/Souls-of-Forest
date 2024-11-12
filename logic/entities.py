@@ -156,6 +156,7 @@ class Player(Entity):
         )
         self.current_map = player_data["current_map"]
         self.max_inventory = player_data["max_inventory"]
+        self.last_position = self.position
         self.experience = 0
         self.next_level = 10
 
@@ -165,6 +166,7 @@ class Player(Entity):
     def get_data(self):
         return {
             **super().get_data(),
+            "max_inventory": self.max_inventory,
             "current_map": self.current_map
         }
     
@@ -183,6 +185,7 @@ class Player(Entity):
             return
 
         if game_map.is_move_valid(new_position):
+            self.last_position = self.position
             self.position = new_position
             print(f"Player moves to {new_position}")
             game_map.check_for_entity_collision(self.position)

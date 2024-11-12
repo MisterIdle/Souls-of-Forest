@@ -30,19 +30,13 @@
                 "value": 10,
                 "effect": "Healing",
                 "position": null
-            },
-            {
-                "name": "MapScroll",
-                "description": "Print the map",
-                "value": 0,
-                "effect": "Map",
-                "position": null
             }
         ],
         "position": [
             0,
-            2
+            0
         ],
+        "max_inventory": 3,
         "current_map": "Tutorial"
     },
     "explored_maps": {
@@ -53,7 +47,7 @@
                     "F",
                     "F",
                     "F",
-                    "F"
+                    " "
                 ],
                 [
                     "F",
@@ -65,22 +59,42 @@
                     "F",
                     "F",
                     "F",
-                    "F"
-                ],
-                [
-                    "F",
-                    "F",
-                    "F",
-                    "F"
-                ],
-                [
-                    "F",
-                    "F",
-                    "F",
-                    "F"
+                    " "
                 ]
             ],
-            "entities": [],
+            "entities": [
+                {
+                    "name": "Slime",
+                    "symbol": "s",
+                    "description": "A small, green slime.",
+                    "health": 5,
+                    "max_health": 5,
+                    "attack": 1,
+                    "defense": 1,
+                    "level": 2,
+                    "gold": 5,
+                    "inventory": [
+                        {
+                            "name": "HealthPotion",
+                            "description": "A small health potion",
+                            "value": 10,
+                            "effect": "Healing",
+                            "position": null
+                        },
+                        {
+                            "name": "HealthPotion",
+                            "description": "A small health potion",
+                            "value": 10,
+                            "effect": "Healing",
+                            "position": null
+                        }
+                    ],
+                    "position": [
+                        1,
+                        2
+                    ]
+                }
+            ],
             "items": [
                 {
                     "name": "Knife",
@@ -116,8 +130,8 @@
             "teleporters": [
                 {
                     "position": [
-                        2,
-                        0
+                        1,
+                        3
                     ],
                     "destination": "Forest",
                     "destination_coords": [
@@ -126,7 +140,7 @@
                     ]
                 }
             ],
-            "shop": [
+            "shops": [
                 {
                     "position": [
                         3,

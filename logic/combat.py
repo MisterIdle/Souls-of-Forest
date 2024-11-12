@@ -1,11 +1,14 @@
 import logic.items as i
 import logic.utils as u
+import logic.loop as l
 import random
 
 class Combat:
-    def __init__(self, player, enemy):
+    def __init__(self, player, enemy, game_map, player_last_position):
         self.player = player
         self.enemy = enemy
+        self.game_map = game_map
+        self.player_last_position = player_last_position
 
     def start_combat(self):
         print(f"Combat started between {self.player.name} and {self.enemy.name}")
@@ -43,11 +46,13 @@ class Combat:
         elif choice in ["use", "u"]:
             self.execute_use(self.player)
         elif choice in ["run", "r"]:
-            run_chance = random.randint(1, 100) <= 70
-            if run_chance:
+            if random.randint(1, 100) <= 50:
                 print("You ran away successfully.")
-                self.player.position = (self.enemy.position[0] + random.randint(-1, 1), self.enemy.position[1] + random.randint(-1, 1))
-                return
+                self.player.position = self.player_last_position
+                l.game_loop()
+            else:
+                print("You failed to run away.")
+            u.wait()
         else:
             print("Invalid choice")
             self.player_turn()
@@ -57,41 +62,52 @@ class Combat:
         if not weapons:
             damage = attacker.attack / target.defense
             target.take_damage(damage)
-            print(f"{attacker.name} attacked {target.name} with their fists and dealt {damage} damage.")
+            print(f"{attacker.name} attacked {target.name} with their fists and dealt {damage}  damage.")
             return
 
         for index, weapon in enumerate(weapons):
             print(f"{index}. {weapon.name}")
+            print(f"   {weapon.effect}: {weapon.value}")
+            print(f"   Crit: {weapon.critical}% chance")
+            print()
 
         try:
-            weapon_index = int(input("Enter weapon number to attack: ").strip())
-            if 0 <= weapon_index < len(weapons):
-                selected_weapon = weapons[weapon_index]
-                attacker.use_item(attacker.inventory.index(selected_weapon), target)
+            weapon_index = input("Enter weapon number or [back]: ").strip()
+            if weapon_index.isdigit() and 0 <= int(weapon_index) < len(weapons):
+                attacker.use_item(attacker.inventory.index(weapons[int(weapon_index)]), target)
+            elif weapon_index in ["back", "b"]:
+                self.player_turn()
             else:
                 print("Invalid weapon number")
                 self.execute_attack(attacker, target)
         except ValueError:
             print("Invalid input, please enter a valid number.")
-
+            self.execute_attack(attacker, target)
+            
     def execute_use(self, entity):
         consumables = [item for item in entity.inventory if isinstance(item, i.Consumable)]
         if not consumables:
-            print("No consumables available in your inventory.")
+            print("No consumables in your inventory.")
+            self.player_turn()
             return
 
         for index, consumable in enumerate(consumables):
             print(f"{index}. {consumable.name}")
+            print(f"   {consumable.effect}: {consumable.value}")
+            print()
 
         try:
-            consumable_index = int(input("Enter consumable number to use: ").strip())
-            if 0 <= consumable_index < len(consumables):
-                entity.use_item(entity.inventory.index(consumables[consumable_index]))
+            consumable_index = input("Enter consumable number or [back]: ").strip()
+            if consumable_index.isdigit() and 0 <= int(consumable_index) < len(consumables):
+                entity.use_item(entity.inventory.index(consumables[int(consumable_index)]))
+            elif consumable_index in ["back", "b"]:
+                self.player_turn()
             else:
                 print("Invalid consumable number")
                 self.execute_use(entity)
         except ValueError:
             print("Invalid input, please enter a valid number.")
+            self.execute_use(entity)
 
     def enemy_turn(self):
         u.wait()

@@ -1,7 +1,6 @@
 {
     "Tutorial": {
         "name": "Tutorial",
-        "description": "A tutorial map.",
         "tiles": [
             ["F", "F", "F", " "],
             ["F", "F", "F", "F"],
@@ -52,7 +51,6 @@
 
     "Forest": {
         "name": "Forest",
-        "description": "A dense forest.",
         "tiles": [
             ["F", "F", "F", "F"],
             ["F", "F", "F", "F"],
