@@ -79,7 +79,6 @@ class Shop:
         self.open_shop()
 
     def buy_item(self, entity, item_index):
-        # Check if inventory is full
         if entity.inventory_full():
             self.open_shop()
 

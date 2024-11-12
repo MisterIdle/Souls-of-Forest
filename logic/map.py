@@ -159,7 +159,7 @@ class Map:
         if player_position in self.entities:
             entities_at_position = self.entities[player_position]
             for entity in entities_at_position:
-                combat = c.Combat(l.player, entity, l.game_map, l.player.last_position)
+                combat = c.Combat(l.player, entity, l.game_map)
                 combat.start_combat()
 
 
@@ -274,23 +274,27 @@ class Map:
                     directions_info[direction] = tile_data["name"]
             else:
                 directions_info[direction] = "Dense forest"
-
-        print(f"Map: {self.map_name}")
+        
+        u.line()
+        u.print_centered(f"=== Zone ===")
+        u.line()
+        u.print_centered("Map: " + self.map_name)
+        u.print_centered("Zone: " + self.get_tile_name(player_position))
+        u.print_centered("Description: " + self.get_tile_description(player_position))
+        u.print_centered("Player Position: " + str(player_position))
+        u.line()
         print()
-        print(f"Player position: {player_position}")
-        print(f"Tile name: {self.get_tile_name(player_position)}")
-        print(f"Tile description: {self.get_tile_description(player_position)}")
         print()
         u.line()
-        print(" " * ((u.max_width // 2) - 3) + "Compass")
+        u.print_centered("=== Compass ===")
         u.line()
-        print(" " * ((u.max_width // 2) - len("North") // 2) + "North")
-        print(" " * ((u.max_width // 2) - len(directions_info["North"]) // 2) + directions_info["North"])
-        print()
-        print("West" + " " * (u.max_width - 8) + "East")
-        print(directions_info["West"] + " " * (u.max_width - len(directions_info["West"]) - len(directions_info["East"])) + directions_info["East"])
-        print()
-        print(" " * ((u.max_width // 2) - len("South") // 2) + "South")
-        print(" " * ((u.max_width // 2) - len(directions_info["South"]) // 2) + directions_info["South"])
+        u.print_centered(f"North")
+        u.print_centered(directions_info["North"])
+        u.print_both("West", "East")
+        u.print_both(directions_info["West"], directions_info["East"])
+        u.print_centered("South")
+        u.print_centered(directions_info["South"])
         u.line()
+        print()
+        print()
             

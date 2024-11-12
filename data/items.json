@@ -25,7 +25,7 @@
 
     "consumables": {
         "health_potion": {
-            "name": "Health Potion",
+            "name": "HealthPotion",
             "description": "A small health potion",
             "value": 10,
             "effect": "Healing"
@@ -34,7 +34,7 @@
 
     "scrolls": {
         "map_scroll": {
-            "name": "Map Scroll",
+            "name": "MapScroll",
             "description": "Print the map",
             "value": 0,
             "effect": "Map"

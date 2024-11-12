@@ -16,7 +16,24 @@
     },
 
     "enemies": {
-        "slime": {
+        "easy_slime": {
+            "name": "Little Slime",
+            "symbol": "s",
+            "description": "A small, green slime.",
+            "health": 2,
+            "max_health": 2,
+            "attack": 1,
+            "defense": 1,
+            "level": {
+                "min": 1,
+                "max": 1
+            },
+            "gold": 2,
+            "inventory": [],
+            "position": [0, 0]
+        },
+
+        "normal_slime": {
             "name": "Slime",
             "symbol": "s",
             "description": "A small, green slime.",
@@ -25,8 +42,8 @@
             "attack": 1,
             "defense": 1,
             "level": {
-                "min": 1,
-                "max": 3
+                "min": 2,
+                "max": 5
             },
             "gold": 5,
             "inventory": [],

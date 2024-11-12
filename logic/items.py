@@ -97,9 +97,6 @@ class HealthPotion(Consumable):
             entity.health = entity.max_health
         print(f"{entity.name} used {self.name} and recovered {self.value} health.")
 
-def get_class_from_name(item_name):
-    return globals()[item_name]
-
 class MapScroll(Consumable):
     def __init__(self):
         map_scroll_data = u.items_data["scrolls"]["map_scroll"]
@@ -109,3 +106,6 @@ class MapScroll(Consumable):
         u.clear_screen()
         print("Map revealed:")
         m.Map.map_display_spell(self, l.game_map, l.player.position)
+
+def get_class_from_name(item_name):
+    return globals()[item_name]

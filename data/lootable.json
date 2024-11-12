@@ -2,16 +2,20 @@
     "loot_player": {
         "items": [
             {
-                "name": "Sword",
+                "name": "Knife",
                 "quantity": 1
             },
             {
                 "name": "HealthPotion",
-                "quantity": 2
+                "quantity": 1
             }
         ]
     },
-    "loot_slime": {
+    "loot_easy_slime": {
+        "items": [
+        ]
+    },
+    "loot_normal_slime": {
         "items": [
             {
                 "name": "HealthPotion",

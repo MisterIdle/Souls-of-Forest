@@ -4,11 +4,10 @@ import logic.loop as l
 import random
 
 class Combat:
-    def __init__(self, player, enemy, game_map, player_last_position):
+    def __init__(self, player, enemy, game_map):
         self.player = player
         self.enemy = enemy
         self.game_map = game_map
-        self.player_last_position = player_last_position
 
     def start_combat(self):
         print(f"Combat started between {self.player.name} and {self.enemy.name}")
@@ -30,16 +29,20 @@ class Combat:
 
     def header(self):
         u.clear_screen()
-        u.load_ascii_image(self.enemy.name)
+        print()
+        u.load_ascii_image(self.enemy.name, centered=True)
+        print()
         self.enemy.print_stats()
-        print("=" * 20)
+        print()
+        u.line()
+        print()
         self.player.print_stats()
     
     def player_turn(self):
         self.header()
         print("\n== Player turn ==")
         print("Attack [A] | Use item [U] | Run [R]")
-        choice = input("> ").strip().lower()
+        choice = input("Enter choice: ").strip().lower()
         
         if choice in ["attack", "a"]:
             self.execute_attack(self.player, self.enemy)
@@ -48,11 +51,10 @@ class Combat:
         elif choice in ["run", "r"]:
             if random.randint(1, 100) <= 50:
                 print("You ran away successfully.")
-                self.player.position = self.player_last_position
+                l.player.position = l.player.last_position
                 l.game_loop()
             else:
                 print("You failed to run away.")
-            u.wait()
         else:
             print("Invalid choice")
             self.player_turn()

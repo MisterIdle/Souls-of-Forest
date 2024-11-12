@@ -14,7 +14,7 @@
     "G": {
         "name": "Grass",
         "symbol": "G",
-        "description": "Grassy terrain.",
+        "description": "Grassy tin.",
         "blocksMovement": false
     },
     "M": {

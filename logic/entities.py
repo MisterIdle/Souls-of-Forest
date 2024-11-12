@@ -45,8 +45,20 @@ class Entity:
             self.die()
 
     def print_stats(self):
-        print(f"{self.name} - Level {self.level}")
-        print(f"HP: {self.health}/{self.max_health} - ATK: {self.attack} - DEF: {self.defense}")
+        u.print_centered(f"{self.name}")
+        print()
+        u.print_centered(f"ATK: {self.attack} - DEF: {self.defense} - LVL: {self.level}")
+        self.display_health_bar()
+        print()
+
+    def display_health_bar(self):
+        bar_length = 10
+        health_ratio = self.health / self.max_health if self.max_health > 0 else 0
+        filled_length = int(bar_length * health_ratio)
+
+        health_bar = "[" + "=" * filled_length + " " * (bar_length - filled_length) + "]"
+        
+        u.print_centered(f"HP: {health_bar} ({self.health}/{self.max_health})")
 
     def init_loot(self):
         loot_key = f"loot_{self.name.lower()}"
@@ -75,14 +87,15 @@ class Entity:
 
     def use_inventory(self):
         u.clear_screen()
+        print()
         u.load_ascii_image("bag")
         print("== Bag ==")
         print(f"Gold: {self.gold}")
         self.print_inventory()
         print("[use] [drop] [exit]")
         choice = input("Enter choice: ").strip().lower()
-        if choice == "use":
-            print("\nSelect the number of the item to use, or type [back] to go back")
+        if choice in ["use", "u"]:
+            print("\nSelect the number of the item to use, or type [back]: ")
             choice_use = input("> ").strip()
             if choice_use.isdigit():
                 index = int(choice_use)
@@ -96,7 +109,7 @@ class Entity:
             else:
                 print("Invalid choice")
                 self.use_inventory()
-        elif choice == "drop":
+        elif choice in ["drop", "d"]:
             print("\nSelect the number(s) of the item(s) to drop (separated by commas), or type [back] to go back")
             choice_drop = input("> ").strip()
             if choice_drop.lower() == "back":
@@ -301,7 +314,7 @@ class Player(Entity):
         progress_bar_length = 10
         filled_length = int(progress_bar_length * progress_percentage / 100)
         progress_bar = "[" + "=" * filled_length + "-" * (progress_bar_length - filled_length) + "]"
-        print(f"Next level: {progress_bar} {progress_percentage}%")
+        u.print_centered(f"Next level: {progress_bar} {progress_percentage}%")
 
 ## ENEMIES ##
 class Enemy(Entity):
@@ -329,9 +342,9 @@ class Enemy(Entity):
                 return True
         return False
     
-class Slime(Enemy):
+class EasySlime(Enemy):
     def __init__(self):
-        slime_data = u.entities_data["enemies"]["slime"]
+        slime_data = u.entities_data["enemies"]["easy_slime"]
         super().__init__(slime_data)
 
 class Goblin(Enemy):
