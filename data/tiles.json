@@ -5,22 +5,46 @@
         "description": "An empty space.",
         "blocksMovement": true
     },
+
     "F": {
         "name": "Forest",
         "symbol": "F",
         "description": "A dense forest.",
         "blocksMovement": false
     },
+
+    "P": {
+        "name": "Plains",
+        "symbol": "P",
+        "description": "A vast plain.",
+        "blocksMovement": false
+    },
+
+    "C": {
+        "name": "Cave",
+        "symbol": "C",
+        "description": "Deepdark cave.",
+        "blocksMovement": false
+    },
+
     "G": {
         "name": "Grass",
         "symbol": "G",
-        "description": "Grassy tin.",
+        "description": "Grassy terrain.",
         "blocksMovement": false
     },
-    "M": {
-        "name": "Mountain",
-        "symbol": "M",
-        "description": "A tall mountain.",
+
+    "R": {
+        "name": "Treasure",
+        "symbol": "R",
+        "description": "A ton of gold, jewels, and other valuables.",
+        "blocksMovement": false
+    },
+
+    "#": {
+        "name": "Lake",
+        "symbol": "#",
+        "description": "A large lake.",
         "blocksMovement": true
     }
 }

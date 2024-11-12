@@ -347,6 +347,11 @@ class EasySlime(Enemy):
         slime_data = u.entities_data["enemies"]["easy_slime"]
         super().__init__(slime_data)
 
+class Slime(Enemy):
+    def __init__(self):
+        slime_data = u.entities_data["enemies"]["slime"]
+        super().__init__(slime_data)
+
 class Goblin(Enemy):
     def __init__(self):
         goblin_data = u.entities_data["enemies"]["goblin"]

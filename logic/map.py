@@ -12,8 +12,8 @@ class Map:
     all_maps = {}
 
     def __init__(self, map_data, tiles_data, map_name):
-        self.map_name = map_name
         self.map_data = map_data
+        self.map_name = map_name
         self.tiles_data = tiles_data
         self.tile_names = [tile["name"] for tile in tiles_data.values()]
         self.tile_descriptions = [tile["description"] for tile in tiles_data.values()]
@@ -58,7 +58,13 @@ class Map:
         tile_symbol = self.map[x][y]
         return next(t["name"] for t in self.tiles_data.values() if t["symbol"] == tile_symbol)
     
-    get_tile_description = lambda self, position: self.tile_descriptions[self.tile_names.index(self.get_tile_name(position))]
+    def get_tile_description(self, position):
+        x, y = position
+        tile_symbol = self.map[x][y]
+        return next(t["description"] for t in self.tiles_data.values() if t["symbol"] == tile_symbol)
+    
+    def get_map_name(self):
+        return self.map_name
 
     def load_map(self):
         self.map = self.create_map()
@@ -269,16 +275,19 @@ class Map:
                 if position in self.teleporters:
                     teleporter = self.teleporters[position]
                     destination = teleporter["destination"]
-                    directions_info[direction] = f"Travel to {destination}"
+                    destination_name = u.map_data[destination]["name"]
+                    directions_info[direction] = destination_name
                 else:
                     directions_info[direction] = tile_data["name"]
             else:
-                directions_info[direction] = "Dense forest"
+                # Affiche quand même le nom de la tuile même si le mouvement n'est pas valide
+                directions_info[direction] = "Obstacle"
         
         u.line()
         u.print_centered(f"=== Zone ===")
         u.line()
-        u.print_centered("Map: " + self.map_name)
+        destination = self.get_map_name()
+        u.print_centered("Map: " + u.map_data[destination]["name"])
         u.print_centered("Zone: " + self.get_tile_name(player_position))
         u.print_centered("Description: " + self.get_tile_description(player_position))
         u.print_centered("Player Position: " + str(player_position))

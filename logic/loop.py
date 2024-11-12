@@ -203,6 +203,7 @@ def display_game_map():
     player.current_map = game_map.map_name
     u.load_ascii_image(game_map.get_tile_name(player.position), centered=True)
     print()
+    game_map.map_display(player.position)
     game_map.map_compass(player.position)
     game_map.show_items_on_tile(player.position)
 

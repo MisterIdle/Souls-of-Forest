@@ -33,7 +33,7 @@
             "position": [0, 0]
         },
 
-        "normal_slime": {
+        "slime": {
             "name": "Slime",
             "symbol": "s",
             "description": "A small, green slime.",

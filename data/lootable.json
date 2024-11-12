@@ -15,7 +15,7 @@
         "items": [
         ]
     },
-    "loot_normal_slime": {
+    "loot_slime": {
         "items": [
             {
                 "name": "HealthPotion",

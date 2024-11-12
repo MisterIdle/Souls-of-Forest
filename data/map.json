@@ -2,24 +2,314 @@
     "Tutorial": {
         "name": "Tutorial",
         "tiles": [
-            ["F", "F", "G", " "],
+            ["F", "F", "F", " "],
             ["F", "F", "F", "F"],
             ["F", "F", "F", " "]
         ],
         "entities": [
-            {
-                "name": "EasySlime",
-                "position": [1, 2],
-                "quantity": 1
-            }
         ],
         "items": [
         ],
         "teleporters": [
             {
                 "position": [1, 3],
-                "destination": "Forest",
+                "destination": "Lake",
                 "destination_coords": [2, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "Lake": {
+        "name": "Strange Lake",
+        "tiles": [
+            [" ", " ", " ", "F", " "],
+            [" ", "F", "F", "F", "F"],
+            ["F", "F", "F", "F", " "],
+            ["F", "F", "F", "F", "F"],
+            ["#", "#", "#", "#", " "],
+            ["#", "#", "#", "#", " "],
+            ["#", "C", "C", "C", " "],
+            ["#", "#", "C", "#", " "]
+        ],
+        "entities": [
+            {
+                "name": "Slime",
+                "position": [2, 3],
+                "quantity": 2
+            }
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [0, 3],
+                "destination": "Plains",
+                "destination_coords": [4, 3]
+            },
+            {
+                "position": [1, 4],
+                "destination": "DarkCaveEntrance",
+                "destination_coords": [1, 0]
+            },
+            {
+                "position": [7, 2],
+                "destination": "DarkCaveCascade",
+                "destination_coords": [0, 2]
+            }
+
+        ],
+        "shops": [
+        ]
+    },
+
+    "Plains": {
+        "name": "Plains",
+        "tiles": [
+            [" ", "P", "P", "P", " "],
+            ["G", "G", "P", "P", "P"],
+            [" ", "P", "P", "P", " "],
+            [" ", "P", "P", "P", " "],
+            [" ", " ", " ", "P", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [4, 3],
+                "destination": "Lake",
+                "destination_coords": [0, 3]
+            },
+            {
+                "position": [1, 0],
+                "destination": "GoblinsCamp",
+                "destination_coords": [1, 4]
+            },
+            {
+                "position": [1, 4],
+                "destination": "DarkCaveDragonEntrance",
+                "destination_coords": [0, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "GoblinsCamp": {
+        "name": "Goblins Camp",
+        "tiles": [
+            [" ", "G", "G", "G", " "],
+            ["G", "G", "G", "G", "G"],
+            [" ", "G", "G", "G", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [1, 4],
+                "destination": "Plains",
+                "destination_coords": [1, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveEntrance": {
+        "name": "Dark Cave Entrance",
+        "tiles": [
+            [" ", "C", " "],
+            ["C", "C", "C"],
+            [" ", "C", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [1, 0],
+                "destination": "Lake",
+                "destination_coords": [1, 4]
+            },
+            {
+                "position": [0, 1],
+                "destination": "DarkCaveDragonEntrance",
+                "destination_coords": [4, 1]
+            },
+            {
+                "position": [2, 1],
+                "destination": "DarkCaveLakeEntrance",
+                "destination_coords": [0, 1]
+            },
+            {
+                "position": [1, 2],
+                "destination": "DarkCaveTavern",
+                "destination_coords": [2, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveLakeEntrance": {
+        "name": "Dark Cave",
+        "tiles": [
+            [" ", "C", " "],
+            [" ", "C", " "],
+            [" ", "C", " "],
+            [" ", "C", " "],
+            ["C", "C", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [0, 1],
+                "destination": "DarkCaveEntrance",
+                "destination_coords": [2, 1]
+            },
+            {
+                "position": [4, 0],
+                "destination": "DarkCaveCascade",
+                "destination_coords": [2, 4]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveTavern": {
+        "name": "Dark Cave Tavern",
+        "tiles": [
+            [" ", "C", "C"],
+            [" ", "C", "C"],
+            ["C", "C", "C"],
+            [" ", "C", "C"],
+            [" ", "C", "C"]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveCascade": {
+        "name": "Dark Cave Cascade",
+        "tiles": [
+            [" ", " ", "C", " ", " "],
+            [" ", "C", "C", "C", " "],
+            ["C", "C", "C", "C", "C"],
+            [" ", "C", "C", "C", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [0, 2],
+                "destination": "Lake",
+                "destination_coords": [7, 2]
+            },
+            {
+                "position": [2, 0],
+                "destination": "DarkCaveShop",
+                "destination_coords": [1, 3]
+            },
+            {
+                "position": [2, 4],
+                "destination": "DarkCaveLakeEntrance",
+                "destination_coords": [4, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveShop": {
+        "name": "Dark Cave Shop",
+        "tiles": [
+            [" ", "C", "C", " "],
+            ["C", "C", "C", "C"],
+            [" ", "C", "C", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [1, 3],
+                "destination": "DarkCaveCascade",
+                "destination_coords": [2, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveDragonEntrance": {
+        "name": "Dark Cave",
+        "tiles": [
+            ["C", "C", "C"],
+            [" ", "C", " "],
+            [" ", "C", " "],
+            [" ", "C", " "],
+            [" ", "C", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [0, 0],
+                "destination": "Plains",
+                "destination_coords": [1, 4]
+            },
+            {
+                "position": [4, 1],
+                "destination": "DarkCaveEntrance",
+                "destination_coords": [0, 1]
+            },
+            {
+                "position": [0, 2],
+                "destination": "DarkCaveDragon",
+                "destination_coords": [1, 0]
+            }
+        ],
+        "shops": [
+        ]
+    },
+
+    "DarkCaveDragon": {
+        "name": "A Dragon's Lair, with a sleeping dragon.",
+        "tiles": [
+            [" ", "R", "R", " "],
+            ["R", "R", "R", "C"],
+            [" ", "R", "R", " "]
+        ],
+        "entities": [
+        ],
+        "items": [
+        ],
+        "teleporters": [
+            {
+                "position": [1, 0],
+                "destination": "DarkCaveDragonEntrance",
+                "destination_coords": [0, 2]
             }
         ],
         "shops": [

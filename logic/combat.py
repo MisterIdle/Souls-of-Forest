@@ -114,6 +114,8 @@ class Combat:
     def enemy_turn(self):
         u.wait()
         self.header()
+        # Print l'inventaire de l'ennemi
+        print(f"{self.enemy.name} has {len(self.enemy.inventory)} items in their inventory.")
         if self.enemy.health <= 0:
             self.player.win_combat(self.enemy.name)
 
@@ -123,8 +125,6 @@ class Combat:
         elif self.enemy.health >= self.enemy.max_health * 0.25:
             if self.enemy.has_consumables():
                 self.enemy_use_item()
-            else:
-                self.enemy_attack()
         u.wait()
 
     def enemy_attack(self):
