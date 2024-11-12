@@ -3,23 +3,23 @@
         "knife": {
             "name": "Knife",
             "description": "A small knife",
-            "value": 1,
+            "value": 2,
             "effect": "Damage",
-            "critical": 0.1
+            "critical": 5
         },
         "sword": {
             "name": "Sword",
             "description": "A short sword with a sharp",
             "value": 10,
             "effect": "Damage",
-            "critical": 0.2
+            "critical": 10
         },
         "axe": {
             "name": "Axe",
             "description": "A small axe",
-            "value": 15,
+            "value": 20,
             "effect": "Damage",
-            "critical": 0.3
+            "critical": 15
         }
     },
 

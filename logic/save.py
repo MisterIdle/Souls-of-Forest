@@ -4,6 +4,7 @@ import logic.entities as e
 import logic.utils as u
 import logic.map as m
 import logic.loop as l
+import logic.items as i
 
 class Save:
     def __init__(self, save_directory="saves", key=12345):
@@ -13,7 +14,7 @@ class Save:
             os.makedirs(self.save_directory)
 
     def xor_encrypt_decrypt(self, data):
-        return ''.join(chr(ord(c) ^ self.key) for c in data)
+        return data
 
     def get_save_path(self, save_name):
         if save_name.endswith(".save"):
@@ -31,8 +32,8 @@ class Save:
         data = {
             "player": player.get_data(),
             "explored_maps": {
-                map_name: map_instance.get_data()
-                for map_name, map_instance in explored_maps.items()
+                map_name: map_data.get_data()
+                for map_name, map_data in explored_maps.items()
             }
         }
 

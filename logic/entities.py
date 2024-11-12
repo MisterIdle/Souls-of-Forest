@@ -4,7 +4,7 @@ import logic.items as i
 import logic.loop as l
 
 class Entity:
-    def __init__(self, name, symbol, description, health, max_health, attack, defense, level, gold, inventory, position):
+    def __init__(self, name, symbol, description, health, max_health, attack, defense, level, gold, inventory, position, loot_initialized):
         self.name = name
         self.symbol = symbol
         self.description = description
@@ -16,6 +16,7 @@ class Entity:
         self.gold = gold
         self.inventory = inventory
         self.position = tuple(position)
+        self.loot_initialized = loot_initialized
         self.init_loot()
 
     def __str__(self):
@@ -32,10 +33,9 @@ class Entity:
             "defense": self.defense,
             "level": self.level,
             "gold": self.gold,
-            "inventory": [
-                item.get_data() for item in self.inventory
-            ],
-            "position": self.position
+            "inventory": [item.get_data() for item in self.inventory],
+            "position": list(self.position),
+            "loot_initialized": self.loot_initialized
         }
                 
     def take_damage(self, damage):
@@ -57,33 +57,43 @@ class Entity:
         filled_length = int(bar_length * health_ratio)
 
         health_bar = "[" + "=" * filled_length + " " * (bar_length - filled_length) + "]"
+
+        self.health = round(self.health, 2)
+        self.max_health = round(self.max_health, 2)
         
         u.print_centered(f"HP: {health_bar} ({self.health}/{self.max_health})")
 
     def init_loot(self):
-        loot_key = f"loot_{self.name.lower()}"
-        loot_data = u.lootable_data.get(loot_key, None)
-        if loot_data:
-            for item_data in loot_data["items"]:
-                item_name = item_data["name"]
-                quantity = item_data["quantity"]
-                for _ in range(quantity):
-                    item_class = i.get_class_from_name(item_name)
-                    print(f"Entity {self.name} has loot: {item_name}")
-                    item = item_class()
-                    self.inventory.append(item)
+        if not self.loot_initialized:
+            loot_key = f"loot_{self.name.lower()}"
+            loot_data = u.lootable_data.get(loot_key, None)
+            if loot_data:
+                for item_data in loot_data["items"]:
+                    item_name = item_data["name"]
+                    quantity = item_data["quantity"]
+                    for _ in range(quantity):
+                        item_class = i.get_class_from_name(item_name)
+                        print(f"Entity {self.name} has loot: {item_name}")
+                        item = item_class()
+                        self.inventory.append(item)
+            self.loot_initialized = True
 
     def print_inventory(self, show_type=None):
-        sorted_inventory = sorted(self.inventory, key=lambda item: (not isinstance(item, i.Weapon), isinstance(item, i.Consumable), item.name))
         print(f"Inventory ({len(self.inventory)}/{self.max_inventory}):")
-        for index, item in enumerate(sorted_inventory):
+        for index, item in enumerate(self.inventory):
             if show_type is None or isinstance(item, show_type):
-                print(f"{index}. {item.name}")
-                print(f"   {item.description}")
-                print(f"   {item.effect}: {item.value}")
-                if isinstance(item, i.Weapon):
-                    print(f"   Critical: {item.critical}%")
-            print()
+                if isinstance(item, dict):
+                    print(f"{index}. {item['name']}")
+                    print(f"   {item['description']}")
+                    print(f"   {item['effect']}: {item['value']}")
+                else:
+                    print(f"{index}. {item.name}")
+                    print(f"   {item.description}")
+                    print(f"   {item.effect}: {item.value}")
+                    if isinstance(item, i.Weapon):
+                        print(f"   Critical: {item.critical}%")
+                print()
+
 
     def use_inventory(self):
         u.clear_screen()
@@ -146,7 +156,6 @@ class Entity:
             return
 
     def die(self):
-        print(f"{self.name} has died.")
         if self.position in l.game_map.entities:
             del l.game_map.entities[self.position]
 
@@ -166,22 +175,35 @@ class Player(Entity):
             player_data["gold"], 
             player_data["inventory"], 
             player_data["position"],
+            player_data["loot_initialized"]
         )
         self.current_map = player_data["current_map"]
         self.max_inventory = player_data["max_inventory"]
         self.last_position = self.position
         self.experience = 0
-        self.next_level = 10
+        self.next_level = 25
 
     def __str__(self):
         return f"{self.name} - {self.description}"
     
     def get_data(self):
         return {
-            **super().get_data(),
+            "name": self.name,
+            "symbol": self.symbol,
+            "description": self.description,
+            "health": self.health,
+            "max_health": self.max_health,
+            "attack": self.attack,
+            "defense": self.defense,
+            "level": self.level,
+            "gold": self.gold,
+            "inventory": [item.get_data() if isinstance(item, i.Weapon) or isinstance(item, i.Consumable) else item for item in self.inventory],
             "max_inventory": self.max_inventory,
-            "current_map": self.current_map
+            "position": list(self.position),
+            "loot_initialized": self.loot_initialized,
+            "current_map": self.current_map,
         }
+
     
     # Move
     def move(self, direction, game_map):
@@ -290,7 +312,7 @@ class Player(Entity):
         self.max_health += 5
         self.max_inventory += 2
         self.health = self.max_health
-        self.next_level = self.level * 10
+        self.next_level = self.level * 2
         print(f"Player leveled up to level {self.level}.")
         print(f"Player stats: ATK {self.attack} - DEF {self.defense} - HP {self.health}/{self.max_health} - INV {len(self.inventory)}/{self.max_inventory}")
         print(f"Next level at {self.next_level} experience points.")
@@ -299,15 +321,27 @@ class Player(Entity):
     def win_combat(self, enemy):
         u.clear_screen()
         print(f"{self.name} defeated {enemy.name}!")
-        xp_reward = random.randint(enemy.level, enemy.level * 2)
+        xp_reward = random.randint(enemy.level * 5, enemy.level * 20)
         
         self.experience += xp_reward
         if self.experience >= self.next_level:
             self.level_up()
 
-        self.gold += random.randint(1, enemy.gold)
-        print(f"{self.name} gained {xp_reward} experience points and {self.gold} gold.")
+        gold_reward = random.randint(enemy.gold, enemy.gold * 2)
+        print(f"{self.name} gained {xp_reward} experience points and {gold_reward} gold.")
+        self.gold += gold_reward
         u.wait()
+
+    def game_over(self):
+        u.clear_screen()
+        u.load_ascii_image("over")
+        print()
+        print("[restart] [exit]")
+        choice = input("Enter choice: ").strip().lower()
+        if choice in ["restart", "r"]:
+            l.continue_game()
+        elif choice in ["exit", "e"]:
+            l.exit_game()
 
     def xp_to_next_level(self):
         progress_percentage = int((self.experience / self.next_level) * 100)
@@ -330,8 +364,17 @@ class Enemy(Entity):
             random.randint(enemy_data["level"]["min"], enemy_data["level"]["max"]), 
             enemy_data["gold"], 
             enemy_data["inventory"], 
-            enemy_data["position"]
+            enemy_data["position"],
+            enemy_data["loot_initialized"]
         )
+
+        self.define_force_with_level()
+
+    def define_force_with_level(self):
+        self.attack += self.level
+        self.defense += self.level
+        self.health += self.level * 5
+        self.max_health += self.level * 5
 
     def __str__(self):
         return f"{self.name} - {self.description}"
@@ -342,9 +385,17 @@ class Enemy(Entity):
                 return True
         return False
     
-class EasySlime(Enemy):
+    def die(self):
+        super().die()
+        for item in self.inventory:
+            item.position = self.position
+            l.game_map.drop_item(item)
+        print(f"{self.name} drops its loot...")
+        u.wait()
+
+class BabySlime(Enemy):
     def __init__(self):
-        slime_data = u.entities_data["enemies"]["easy_slime"]
+        slime_data = u.entities_data["enemies"]["baby_slime"]
         super().__init__(slime_data)
 
 class Slime(Enemy):
@@ -352,10 +403,36 @@ class Slime(Enemy):
         slime_data = u.entities_data["enemies"]["slime"]
         super().__init__(slime_data)
 
+class BigSlime(Enemy):
+    def __init__(self):
+        slime_data = u.entities_data["enemies"]["big_slime"]
+        super().__init__(slime_data)
+
 class Goblin(Enemy):
     def __init__(self):
         goblin_data = u.entities_data["enemies"]["goblin"]
         super().__init__(goblin_data)
 
+class GuardGoblin(Enemy):
+    def __init__(self):
+        goblin_data = u.entities_data["enemies"]["guard_goblin"]
+        super().__init__(goblin_data)
+
+class KingGoblin(Enemy):
+    def __init__(self):
+        goblin_data = u.entities_data["enemies"]["king_goblin"]
+        super().__init__(goblin_data)
+
+class Dragon(Enemy):
+    def __init__(self):
+        dragon_data = u.entities_data["enemies"]["dragon"]
+        super().__init__(dragon_data)
+
+class Mage(Enemy):
+    def __init__(self):
+        mage_data = u.entities_data["enemies"]["mage"]
+        super().__init__(mage_data)
+
 def get_class_from_name(class_name):
+    class_name = class_name.replace(" ", "")
     return globals()[class_name]

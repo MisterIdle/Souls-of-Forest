@@ -1,0 +1,95 @@
+{
+    "player": {
+        "name": "Player",
+        "symbol": "@",
+        "description": "The player character.",
+        "health": 3.0,
+        "max_health": 10,
+        "attack": 5,
+        "defense": 2,
+        "level": 1,
+        "gold": 10,
+        "inventory": [
+            {
+                "name": "Knife",
+                "description": "A small knife",
+                "value": 2,
+                "effect": "Damage",
+                "position": null
+            },
+            {
+                "name": "HealthPotion",
+                "description": "A small health potion",
+                "value": 10,
+                "effect": "Healing",
+                "position": null
+            }
+        ],
+        "max_inventory": 3,
+        "position": [
+            2,
+            1
+        ],
+        "loot_initialized": true,
+        "current_map": "Tutorial"
+    },
+    "explored_maps": {
+        "Tutorial": {
+            "name": "Tutorial",
+            "tiles": [
+                [
+                    "F",
+                    "F",
+                    "F",
+                    " "
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    "F"
+                ],
+                [
+                    "F",
+                    "F",
+                    "F",
+                    " "
+                ]
+            ],
+            "entities": [
+                {
+                    "name": "Baby Slime",
+                    "symbol": "s",
+                    "description": "A small, green slime that is easy to defeat.",
+                    "health": 1.0,
+                    "max_health": 7,
+                    "attack": 2,
+                    "defense": 2,
+                    "level": 1,
+                    "gold": 2,
+                    "inventory": [],
+                    "position": [
+                        1,
+                        2
+                    ],
+                    "loot_initialized": true
+                }
+            ],
+            "items": [],
+            "teleporters": [
+                {
+                    "position": [
+                        1,
+                        3
+                    ],
+                    "destination": "Lake",
+                    "destination_coords": [
+                        2,
+                        0
+                    ]
+                }
+            ],
+            "shops": []
+        }
+    }
+}

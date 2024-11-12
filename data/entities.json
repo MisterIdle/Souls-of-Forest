@@ -5,21 +5,22 @@
         "description": "The player character.",
         "health": 10,
         "max_health": 10,
-        "attack": 1,
-        "defense": 1,
+        "attack": 5,
+        "defense": 2,
         "level": 1,
-        "gold": 200,
+        "gold": 10,
         "inventory": [],
         "max_inventory": 3,
         "position": [0, 0],
+        "loot_initialized": false,
         "current_map": "Tutorial"
     },
 
     "enemies": {
-        "easy_slime": {
-            "name": "Little Slime",
+        "baby_slime": {
+            "name": "Baby Slime",
             "symbol": "s",
-            "description": "A small, green slime.",
+            "description": "A small, green slime that is easy to defeat.",
             "health": 2,
             "max_health": 2,
             "attack": 1,
@@ -30,40 +31,135 @@
             },
             "gold": 2,
             "inventory": [],
-            "position": [0, 0]
+            "position": [0, 0],
+            "loot_initialized": false
         },
 
         "slime": {
             "name": "Slime",
             "symbol": "s",
-            "description": "A small, green slime.",
-            "health": 5,
-            "max_health": 5,
-            "attack": 1,
-            "defense": 1,
+            "description": "A slightly tougher slime, capable of handling more damage.",
+            "health": 6,
+            "max_health": 6,
+            "attack": 2,
+            "defense": 2,
             "level": {
                 "min": 2,
-                "max": 5
+                "max": 3
             },
             "gold": 5,
             "inventory": [],
-            "position": [0, 0]
+            "position": [0, 0],
+            "loot_initialized": false
         },
+
+        "big_slime": {
+            "name": "Big Slime",
+            "symbol": "S",
+            "description": "A big slime with more health and a stronger attack.",
+            "health": 15,
+            "max_health": 15,
+            "attack": 5,
+            "defense": 3,
+            "level": {
+                "min": 4,
+                "max": 5
+            },
+            "gold": 8,
+            "inventory": [],
+            "position": [0, 0],
+            "loot_initialized": false
+        },
+
         "goblin": {
             "name": "Goblin",
             "symbol": "g",
-            "description": "A small, green goblin.",
-            "health": 10,
-            "max_health": 10,
-            "attack": 2,
-            "defense": 1,
+            "description": "A goblin with decent attack power and good speed.",
+            "health": 15,
+            "max_health": 15,
+            "attack": 4,
+            "defense": 3,
             "level": {
-                "min": 2,
-                "max": 4
+                "min": 3,
+                "max": 5
             },
-            "gold": 10,
+            "gold": 12,
             "inventory": [],
-            "position": [0, 0]
+            "position": [0, 0],
+            "loot_initialized": false
+        },
+
+        "guard_goblin": {
+            "name": "Guard Goblin",
+            "symbol": "G",
+            "description": "A goblin warrior with solid defense and high attack.",
+            "health": 25,
+            "max_health": 25,
+            "attack": 7,
+            "defense": 5,
+            "level": {
+                "min": 5,
+                "max": 7
+            },
+            "gold": 18,
+            "inventory": [],
+            "position": [0, 0],
+            "loot_initialized": false
+        },
+
+        "king_goblin": {
+            "name": "King Goblin",
+            "symbol": "K",
+            "description": "The king of goblins, incredibly strong and resistant.",
+            "health": 35,
+            "max_health": 35,
+            "attack": 9,
+            "defense": 7,
+            "level": {
+                "min": 7,
+                "max": 9
+            },
+            "gold": 30,
+            "inventory": [],
+            "position": [0, 0],
+            "loot_initialized": false
+        },
+
+        "dragon": {
+            "name": "Dragon",
+            "symbol": "D",
+            "description": "A massive dragon with devastating strength and defense.",
+            "health": 50,
+            "max_health": 50,
+            "attack": 12,
+            "defense": 10,
+            "level": {
+                "min": 9,
+                "max": 10
+            },
+            "gold": 50,
+            "inventory": [],
+            "position": [0, 0],
+            "loot_initialized": false
+        },
+
+        "mage": {
+            "name": "Mage",
+            "symbol": "M",
+            "description": "A powerful mage with high attack and moderate defense.",
+            "health": 25,
+            "max_health": 25,
+            "attack": 8,
+            "defense": 6,
+            "level": {
+                "min": 6,
+                "max": 8
+            },
+            "gold": 20,
+            "inventory": [],
+            "position": [0, 0],
+            "loot_initialized": false
         }
     }
 }
+    

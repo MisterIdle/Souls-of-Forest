@@ -18,13 +18,11 @@ class Combat:
             self.player_turn()
             if self.enemy.health <= 0:
                 self.player.win_combat(self.enemy)
-                self.enemy.die()
                 break
             
             self.enemy_turn()
             if self.player.health <= 0:
-                self.enemy.win_combat(self.player)
-                self.player.die()
+                self.player.game_over()
                 break
 
     def header(self):
@@ -52,6 +50,7 @@ class Combat:
             if random.randint(1, 100) <= 50:
                 print("You ran away successfully.")
                 l.player.position = l.player.last_position
+                u.wait()
                 l.game_loop()
             else:
                 print("You failed to run away.")
@@ -112,37 +111,36 @@ class Combat:
             self.execute_use(entity)
 
     def enemy_turn(self):
-        u.wait()
         self.header()
-        # Print l'inventaire de l'ennemi
-        print(f"{self.enemy.name} has {len(self.enemy.inventory)} items in their inventory.")
         if self.enemy.health <= 0:
-            self.player.win_combat(self.enemy.name)
+            self.player.win_combat(self.enemy)
+            u.clear_screen()
+            return
 
         print("\n== Enemy turn ==")
-        if self.enemy.health >= self.enemy.max_health * 0.5:
+        if self.enemy.health < self.enemy.max_health / 2:
+            self.enemy_use_item()
+        else:
             self.enemy_attack()
-        elif self.enemy.health >= self.enemy.max_health * 0.25:
-            if self.enemy.has_consumables():
-                self.enemy_use_item()
         u.wait()
 
     def enemy_attack(self):
-        for index, item in enumerate(self.enemy.inventory):
-            if isinstance(item, i.Weapon):
-                self.enemy.use_item(index, self.player)
-                return
-            
-        damage = self.enemy.attack / self.player.defense
-        self.player.take_damage(damage)
-        print(f"{self.enemy.name} attacked {self.player.name} and dealt {damage} damage.")
-
+        weapons = [item for item in self.enemy.inventory if isinstance(item, i.Weapon)]
+        if not weapons:
+            damage = self.enemy.attack / self.player.defense
+            self.player.take_damage(damage)
+            print(f"{self.enemy.name} attacked you with their fists and dealt {damage} damage.")
+            return
+        
+        weapon = random.choice(weapons)
+        weapon_index = self.enemy.inventory.index(weapon)
+        self.enemy.use_item(weapon_index, self.player)
 
     def enemy_use_item(self):
-        for index, item in enumerate(self.enemy.inventory):
-            if isinstance(item, i.Consumable):
-                self.enemy.use_item(index)
-                return
-            else:
-                self.enemy_attack()
-                return
+        consumables = [item for item in self.enemy.inventory if isinstance(item, i.Consumable)]
+        if not consumables:
+            self.enemy_attack()
+            return
+
+        consumable = random.choice(consumables)
+        self.enemy.use_item(self.enemy.inventory.index(consumable))

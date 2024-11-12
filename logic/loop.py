@@ -45,7 +45,7 @@ def new_game():
         return
     
     print("Map loaded")
-    create_player()
+    load_all()
 
     u.clear_screen()
     ambience()
@@ -56,9 +56,11 @@ def new_game():
 def load_maps():
     m.Map.load_all_maps()
 
-def create_player():
+def load_all():
     global player
     player = e.Player(u.entities_data["player"])
+    global explored_maps
+    explored_maps["Tutorial"] = game_map
 
 def ambience():
     print("Hello, type in Spotify or other")
@@ -78,8 +80,6 @@ def set_player_name():
     t.sleep(1)
 
 def intro():
-    global explored_maps
-    explored_maps["Tutorial"] = game_map
     u.print_dialogue("Narrator", "intro")
     u.print_dialogue("Narrator", "intro2")
     u.print_dialogue("Narrator", "intro3")
@@ -226,8 +226,7 @@ def pickup_items():
 
 def open_options():
     print("Options")
-    print("[S] Save game")
-    print("[X] Exit game")
+    print("[save] [exit]")
     choice = input("Enter choice: ").strip().lower()
 
     if choice in ["x", "exit"]:

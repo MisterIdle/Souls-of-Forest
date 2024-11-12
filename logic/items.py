@@ -41,17 +41,19 @@ class Weapon(Item):
             print("No target to attack")
             return
         
-        miss = random.randint(1, 100) <= 30
+        miss = random.randint(1, 100) <= 10
         if miss:
             print(f"{entity.name} missed the attack.")
             return
         
         critical = random.randint(1, 100) <= self.critical
+        damage = entity.attack + self.value / target.defense
         if critical:
-            self.value *= 2
-            print(f"{entity.name} critical hit with {self.name}!")
-        
-        damage = self.value + entity.attack - target.defense
+            damage *= 2
+            print("Critical hit!")
+
+        damage = round(damage, 2)
+
         target.take_damage(damage)
         print(f"{entity.name} attacked {target.name} with {self.name} and dealt {damage} damage.")
 

@@ -165,6 +165,10 @@ class Map:
         if player_position in self.entities:
             entities_at_position = self.entities[player_position]
             for entity in entities_at_position:
+
+                save = s.Save()
+                save.save_game(l.explored_maps, l.player, l.player.name + "_fight")
+
                 combat = c.Combat(l.player, entity, l.game_map)
                 combat.start_combat()
 
@@ -280,7 +284,6 @@ class Map:
                 else:
                     directions_info[direction] = tile_data["name"]
             else:
-                # Affiche quand même le nom de la tuile même si le mouvement n'est pas valide
                 directions_info[direction] = "Obstacle"
         
         u.line()
