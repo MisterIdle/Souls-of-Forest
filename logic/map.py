@@ -1,7 +1,7 @@
 import logic.entities as e
 import logic.items as items
 import logic.utils as utils
-import logic.fight as fight
+import logic.combat as combat
 import logic.loop as loop
 import logic.save as s
 import logic.shop as sh
@@ -181,8 +181,8 @@ class Map:
         if player_position in self.entities:
             entities_at_position = self.entities[player_position]
             for entity in entities_at_position:
-                combat = combat.Combat(loop.player, entity, loop.game_map)
-                combat.start_combat()
+                comb = combat.Combat(loop.player, entity, loop.game_map)
+                comb.start_combat()
 
     # Get current map
     def check_for_entity_collision_around(self, player_position):
