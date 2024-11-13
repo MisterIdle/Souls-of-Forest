@@ -343,7 +343,24 @@ class Player(Entity):
         gold_reward = random.randint(enemy.gold, enemy.gold * 2)
         print(f"{self.name} gained {xp_reward} experience points and {gold_reward} gold.")
         self.gold += gold_reward
+
+        if enemy.name == "Baby Slime":
+            self.win_game(good_ending=False)
+
         u.wait()
+
+    def win_game(self, good_ending=True):
+        u.clear_screen()
+        if good_ending:
+            u.load_ascii_image("win")
+            print("Congratulations!")
+        else:
+            u.load_ascii_image("bad_ending")
+            print("Slime end")
+        print()
+        print("Thanks for playing!")
+        u.wait()
+        l.exit_game()
 
     def game_over(self):
         u.clear_screen()
