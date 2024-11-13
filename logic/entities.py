@@ -17,7 +17,7 @@ class Entity:
         self.inventory = inventory
         self.position = tuple(position)
         self.loot_initialized = loot_initialized
-        self.init_loot()
+        self.initz_loot()
 
     def __str__(self):
         return f"{self.name} - {self.description}"
@@ -35,7 +35,7 @@ class Entity:
             "gold": self.gold,
             "inventory": [item.get_data() for item in self.inventory],
             "position": list(self.position),
-            "loot_initialized": self.loot_initialized
+            "loot_initialized": self.loot_initialized,
         }
                 
     def take_damage(self, damage):
@@ -63,20 +63,30 @@ class Entity:
         
         u.print_centered(f"HP: {health_bar} ({self.health}/{self.max_health})")
 
-    def init_loot(self):
+    def initz_loot(self):
         if not self.loot_initialized:
-            loot_key = f"loot_{self.name.lower()}"
-            loot_data = u.lootable_data.get(loot_key, None)
-            if loot_data:
-                for item_data in loot_data["items"]:
-                    item_name = item_data["name"]
-                    quantity = item_data["quantity"]
-                    for _ in range(quantity):
-                        item_class = i.get_class_from_name(item_name)
-                        print(f"Entity {self.name} has loot: {item_name}")
-                        item = item_class()
-                        self.inventory.append(item)
+            self.init_loot()
             self.loot_initialized = True
+        else:
+            self.load_inventory_from_save()
+
+    def init_loot(self):
+        loot_key = f"loot_{self.name.lower()}"
+        loot_data = u.lootable_data.get(loot_key, None)
+        print(loot_data)
+        if loot_data:
+            for item_data in loot_data["items"]:
+                item_name = item_data["name"]
+                quantity = item_data["quantity"]
+                for _ in range(quantity):
+                    item_class = i.get_class_from_name(item_name)
+                    print(f"Entity {self.name} has loot: {item_name}")
+                    item = item_class()
+                    self.inventory.append(item)
+                    u.wait()
+
+    def load_inventory_from_save(self):
+        self.inventory = [i.get_class_from_name(item_data["name"])() for item_data in self.inventory]
 
     def print_inventory(self, show_type=None):
         print(f"Inventory ({len(self.inventory)}/{self.max_inventory}):")

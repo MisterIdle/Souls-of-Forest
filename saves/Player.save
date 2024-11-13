@@ -3,7 +3,7 @@
         "name": "Player",
         "symbol": "@",
         "description": "The player character.",
-        "health": 3.0,
+        "health": 7.0,
         "max_health": 10,
         "attack": 5,
         "defense": 2,
@@ -16,18 +16,11 @@
                 "value": 2,
                 "effect": "Damage",
                 "position": null
-            },
-            {
-                "name": "HealthPotion",
-                "description": "A small health potion",
-                "value": 10,
-                "effect": "Healing",
-                "position": null
             }
         ],
         "max_inventory": 3,
         "position": [
-            2,
+            0,
             1
         ],
         "loot_initialized": true,
@@ -61,7 +54,7 @@
                     "name": "Baby Slime",
                     "symbol": "s",
                     "description": "A small, green slime that is easy to defeat.",
-                    "health": 1.0,
+                    "health": 7,
                     "max_health": 7,
                     "attack": 2,
                     "defense": 2,
@@ -75,7 +68,18 @@
                     "loot_initialized": true
                 }
             ],
-            "items": [],
+            "items": [
+                {
+                    "name": "HealthPotion",
+                    "description": "A small health potion",
+                    "value": 10,
+                    "effect": "Healing",
+                    "position": [
+                        1,
+                        0
+                    ]
+                }
+            ],
             "teleporters": [
                 {
                     "position": [
