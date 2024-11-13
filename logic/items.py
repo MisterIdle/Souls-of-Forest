@@ -1,9 +1,7 @@
 import random
-import logic.utils as u
-import logic.map as m
-import logic.entities as e
-import logic.loop as l
+import logic.utils as utils
 
+## ITEM CLASS ##
 class Item:
     def __init__(self, name, description, value, effect):
         self.name = name
@@ -12,6 +10,7 @@ class Item:
         self.effect = effect
         self.position = None
     
+    # Get item data
     def get_data(self):
         return {
             "name": self.name,
@@ -21,6 +20,7 @@ class Item:
             "position": self.position
         }
     
+    # Use item
     def use(self, entity):
         pass
 
@@ -36,6 +36,7 @@ class Weapon(Item):
 
         self.critical = weapon_data["critical"]
 
+    # Use weapon to attack, if attack has a chance to miss, critical hit, or deal extra damage
     def use(self, entity, target=None):
         if not target:
             print("No target to attack")
@@ -57,20 +58,26 @@ class Weapon(Item):
         target.take_damage(damage)
         print(f"{entity.name} attacked {target.name} with {self.name} and dealt {damage} damage.")
 
+## WEAPONS ##
 class Knife(Weapon):
     def __init__(self):
-        knife_data = u.items_data["weapons"]["knife"]
+        knife_data = utils.items_data["weapons"]["knife"]
         super().__init__(knife_data)
 
 class Sword(Weapon):
     def __init__(self):
-        sword_data = u.items_data["weapons"]["sword"]
+        sword_data = utils.items_data["weapons"]["sword"]
         super().__init__(sword_data)
 
 class Axe(Weapon):
     def __init__(self):
-        axe_data = u.items_data["weapons"]["axe"]
+        axe_data = utils.items_data["weapons"]["axe"]
         super().__init__(axe_data)
+
+class DragonSlayer(Weapon):
+    def __init__(self):
+        dragon_slayer_data = utils.items_data["weapons"]["dragonslayer"]
+        super().__init__(dragon_slayer_data)
 
 ## CONSUMABLES ##
 class Consumable(Item):
@@ -85,9 +92,10 @@ class Consumable(Item):
     def use(self, entity):
         pass
 
+## POTIONS ##
 class HealthPotion(Consumable):
     def __init__(self):
-        health_potion_data = u.items_data["consumables"]["health_potion"]
+        health_potion_data = utils.items_data["consumables"]["health_potion"]
         super().__init__(health_potion_data)
 
     def use(self, entity):
@@ -99,15 +107,38 @@ class HealthPotion(Consumable):
             entity.health = entity.max_health
         print(f"{entity.name} used {self.name} and recovered {self.value} health.")
 
-class MapScroll(Consumable):
+class BigHealthPotion(Consumable):
     def __init__(self):
-        map_scroll_data = u.items_data["scrolls"]["map_scroll"]
-        super().__init__(map_scroll_data)
+        big_health_potion_data = utils.items_data["consumables"]["big_health_potion"]
+        super().__init__(big_health_potion_data)
 
     def use(self, entity):
-        u.clear_screen()
-        print("Map revealed:")
-        m.Map.map_display_spell(self, l.game_map, l.player.position)
+        if entity.health == entity.max_health:
+            print("Health is already full")
+            return
+        entity.health += self.value
+        if entity.health > entity.max_health:
+            entity.health = entity.max_health
+        print(f"{entity.name} used {self.name} and recovered {self.value} health.")
 
+class AttackPotion(Consumable):
+    def __init__(self):
+        strength_potion_data = utils.items_data["consumables"]["attack_potion"]
+        super().__init__(strength_potion_data)
+
+    def use(self, entity):
+        entity.attack += self.value
+        print(f"{entity.name} used {self.name} and increased attack by {self.value}.")
+
+class DefensePotion(Consumable):
+    def __init__(self):
+        defense_potion_data = utils.items_data["consumables"]["defense_potion"]
+        super().__init__(defense_potion_data)
+
+    def use(self, entity):
+        entity.defense += self.value
+        print(f"{entity.name} used {self.name} and increased defense by {self.value}.")
+
+# Get specific item class from name
 def get_class_from_name(item_name):
     return globals()[item_name]

@@ -8,6 +8,20 @@
         "intro6": "You take the knife and the potion and stand up.",
         "intro7": "Suddenly, a loud noise echoes around you!",
         "intro8": "You realize you're not alone in this forest...",
-        "intro9": "I think it will be difficult to survive here and leave this forest..."
+        "intro9": "I think it will be difficult to survive here and leave this forest...",
+
+        "fail1": "The dragon collapses, letting out a deafening roar.",
+        "fail2": "As the last breath leaves its body, a dark aura spreads from the forest.",
+        "fail3": "You realize the entire land is slowly being consumed by a sinister darkness.",
+        "fail4": "Without the dragon’s power, the curse on the land strengthens.",
+        "fail5": "People everywhere begin to transform into twisted creatures.",
+        "fail6": "Your victory feels hollow... the world as you knew it is now condemned.",
+        
+        "win1": "The mage falls, his body fading into mist.",
+        "win2": "With his death, a sudden pulse of light bursts through the forest.",
+        "win3": "One by one, the creatures around you transform back into humans.",
+        "win4": "Among them, a noble figure stands—the Dragon King, restored to his human form.",
+        "win5": "He kneels and thanks you, swearing to restore the land to its former glory.",
+        "win6": "You’ve freed the kingdom from its curse. Peace returns at last."
     }
 }

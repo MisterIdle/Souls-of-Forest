@@ -1,99 +1,119 @@
-import logic.utils as u
-import logic.items as i
-import logic.loop as l
+import logic.utils as utils
+import logic.items as items
+import logic.loop as loop
 
+# Shop class to handle shop interactions
 class Shop:
     def __init__(self, shop_data):
         self.shop_data = shop_data
         self.items = []
         self.init_loot()
 
+    # Initialize shop items
     def init_loot(self):
         for item in self.shop_data["items"]:
             name_item = item["name"]
-            item_class = i.get_class_from_name(name_item)
-            item_instance = item_class()
-            self.items.append(item_instance)
+            item_class = items.get_class_from_name(name_item)
+            self.items.append(item_class())
 
-    def print_items(self):
-        u.clear_screen()
-        u.load_ascii_image("shop")
+    # Display shop header
+    def display_shop_header(self):
+        utils.clear_screen()
+        utils.load_ascii_image("shop")
         print(f"=== Shop: {self.shop_data['name']} ===")
-        print(f"Gold: {l.player.gold}")
-        print(f"Bag: {len(l.player.inventory)}/{l.player.max_inventory}")
+        print(f"Gold: {loop.player.gold}")
+        print(f"Bag: {len(loop.player.inventory)}/{loop.player.max_inventory}")
+
+    # Print shop items
+    def print_items(self):
+        self.display_shop_header()
         for index, item in enumerate(self.items):
-            print(f"{index + 1}. {item}")
+            print(f"{index + 1}. {item.name}")
             print(f"   {item.effect}: {item.value}")
-            if isinstance(item, i.Weapon):
+            if isinstance(item, items.Weapon):
                 print(f"   Critical: {item.critical}%")
             print(f"   Buy: {item.value} / Sell: {item.value // 2} gold")
             print()
 
-    def open_shop(self):
-        self.print_items()
+    # Prompt player choice
+    def prompt_choice(self):
         print("[buy] [sell] [bag] [exit]")
-        choice = input("Enter choice: ")
+        return input("Enter choice: ").lower()
+    
+    # Open shop
+    def open_shop(self):
+        while True:
+            self.print_items()
+            choice = self.prompt_choice()
 
-        if choice in ["buy", "b"]:
-            choice_buy = input("Enter the number of the item you want to buy: ")
-            if choice_buy.isdigit():
-                choice_buy = int(choice_buy) - 1
-                if 0 <= choice_buy < len(self.items):
-                    confirm = input(f"Buy {self.items[choice_buy].name} for {self.items[choice_buy].value} gold? [y/n]: ")
-                    if confirm.lower() == "y":
-                        self.buy_item(l.player, choice_buy)
-                        u.wait()
-                    else:
-                        print("Transaction cancelled.")
-                        u.wait()
+            if choice in ["buy", "b"]:
+                self.handle_buy()
+            elif choice in ["sell", "s"]:
+                self.handle_sell()
+            elif choice in ["bag", "inventory", "i"]:
+                loop.player.print_inventory()
+                utils.wait()
+            elif choice in ["exit", "back"]:
+                break
+            else:
+                print("Invalid choice.")
+                utils.wait()
+
+    # Handle buy item
+    def handle_buy(self):
+        choice_buy = input("Enter the number of the item you want to buy: ")
+        if choice_buy.isdigit():
+            item_index = int(choice_buy) - 1
+            if 0 <= item_index < len(self.items):
+                item = self.items[item_index]
+                confirm = input(f"Buy {item.name} for {item.value} gold? [y/n]: ").lower()
+                if confirm == "y":
+                    self.buy_item(loop.player, item_index)
                 else:
-                    print("Invalid item number.")
-                    u.wait()
-            
-        elif choice in ["sell", "s"]:
-            choice_sell = input("Enter the number of the item you want to sell: ")
+                    print("Transaction cancelled.")
+            else:
+                print("Invalid item number.")
+        else:
+            print("Please enter a valid number.")
+        utils.wait()
 
-            if choice_sell.isdigit():
-                choice_sell = int(choice_sell) - 1
-                if 0 <= choice_sell < len(l.player.inventory):
-                    confirm = input(f"Sell {l.player.inventory[choice_sell].name} for {l.player.inventory[choice_sell].value // 2} gold? [y/n]: ")
-                    if confirm.lower() == "y":
-                        self.sell_item(l.player, choice_sell)
-                        u.wait()
-                    else:
-                        print("Transaction cancelled.")
-                        u.wait()
+    # Handle sell item
+    def handle_sell(self):
+        loop.player.print_inventory()
+        choice_sell = input("Enter the number of the item you want to sell: ")
+        if choice_sell.isdigit():
+            item_index = int(choice_sell) - 1
+            if 0 <= item_index < len(loop.player.inventory):
+                item = loop.player.inventory[item_index]
+                confirm = input(f"Sell {item.name} for {item.value // 2} gold? [y/n]: ").lower()
+                if confirm == "y":
+                    self.sell_item(loop.player, item_index)
                 else:
-                    print("Invalid item number.")
-                    u.wait()
+                    print("Transaction cancelled.")
+            else:
+                print("Invalid item number.")
+        else:
+            print("Please enter a valid number.")
+        utils.wait()
 
-        elif choice in ["bag", "inventory", "i"]:
-            print()
-            print("=== Inventory ===")
-            l.player.print_inventory()
-            u.wait()
-
-        elif choice in ["exit", "back"]:
-            return
-        
-        self.open_shop()
-
+    # Buy item
     def buy_item(self, entity, item_index):
-        if entity.inventory_full():
-            self.open_shop()
-
         item = self.items[item_index]
-        if entity.gold < item.value:
+        if entity.inventory_full():
+            print("Inventory full.")
+        elif entity.gold < item.value:
             print("Not enough gold.")
-            u.wait()
-            return
-        entity.gold -= item.value
-        entity.inventory.append(item)
-        print(f"{entity.name} bought {item.name} for {item.value} gold.")
-        u.wait()
+        else:
+            entity.gold -= item.value
+            entity.inventory.append(item)
+            print(f"{entity.name} bought {item.name} for {item.value} gold.")
+        utils.wait()
 
+    # Sell item
     def sell_item(self, entity, item_index):
         item = entity.inventory[item_index]
         sell_value = item.value // 2
         entity.gold += sell_value
+        entity.inventory.pop(item_index)
         print(f"{entity.name} sold {item.name} for {sell_value} gold.")
+        utils.wait()

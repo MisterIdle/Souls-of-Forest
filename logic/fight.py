@@ -1,18 +1,21 @@
-import logic.items as i
-import logic.utils as u
-import logic.loop as l
+import logic.items as items
+import logic.utils as utils
+import logic.loop as loop
 import random
 
+# Combat class to handle combat between player and enemy
 class Combat:
     def __init__(self, player, enemy, game_map):
         self.player = player
         self.enemy = enemy
         self.game_map = game_map
 
+    # Start combat between player and enemy
     def start_combat(self):
         print(f"Combat started between {self.player.name} and {self.enemy.name}")
         self.combat_loop()
 
+    # Main combat loop
     def combat_loop(self):
         while self.player.health > 0 and self.enemy.health > 0:
             self.player_turn()
@@ -25,17 +28,19 @@ class Combat:
                 self.player.game_over()
                 break
 
+    # Display header with player and enemy stats
     def header(self):
-        u.clear_screen()
+        utils.clear_screen()
         print()
-        u.load_ascii_image(self.enemy.name, centered=True)
+        utils.load_ascii_image(self.enemy.name, centered=True)
         print()
         self.enemy.print_stats()
         print()
-        u.line()
+        utils.line()
         print()
         self.player.print_stats()
     
+    # Player turn to choose action
     def player_turn(self):
         self.header()
         print("\n== Player turn ==")
@@ -49,17 +54,18 @@ class Combat:
         elif choice in ["run", "r"]:
             if random.randint(1, 100) <= 50:
                 print("You ran away successfully.")
-                l.player.position = l.player.last_position
-                u.wait()
-                l.game_loop()
+                loop.player.position = loop.player.last_position
+                utils.wait()
+                loop.game_loop()
             else:
                 print("You failed to run away.")
         else:
             print("Invalid choice")
             self.player_turn()
 
+    # Execute player attack
     def execute_attack(self, attacker, target):
-        weapons = [item for item in attacker.inventory if isinstance(item, i.Weapon)]
+        weapons = [item for item in attacker.inventory if isinstance(item, items.Weapon)]
         if not weapons:
             damage = attacker.attack / target.defense
             target.take_damage(damage)
@@ -84,9 +90,10 @@ class Combat:
         except ValueError:
             print("Invalid input, please enter a valid number.")
             self.execute_attack(attacker, target)
-            
+
+    # Execute player use item  
     def execute_use(self, entity):
-        consumables = [item for item in entity.inventory if isinstance(item, i.Consumable)]
+        consumables = [item for item in entity.inventory if isinstance(item, items.Consumable)]
         if not consumables:
             print("No consumables in your inventory.")
             self.player_turn()
@@ -110,11 +117,12 @@ class Combat:
             print("Invalid input, please enter a valid number.")
             self.execute_use(entity)
 
+    # Enemy turn to choose action
     def enemy_turn(self):
         self.header()
         if self.enemy.health <= 0:
             self.player.win_combat(self.enemy)
-            u.clear_screen()
+            utils.clear_screen()
             return
 
         print("\n== Enemy turn ==")
@@ -122,10 +130,11 @@ class Combat:
             self.enemy_use_item()
         else:
             self.enemy_attack()
-        u.wait()
+        utils.wait()
 
+    # Enemy attack player
     def enemy_attack(self):
-        weapons = [item for item in self.enemy.inventory if isinstance(item, i.Weapon)]
+        weapons = [item for item in self.enemy.inventory if isinstance(item, items.Weapon)]
         if not weapons:
             damage = self.enemy.attack / self.player.defense
             self.player.take_damage(damage)
@@ -136,8 +145,9 @@ class Combat:
         weapon_index = self.enemy.inventory.index(weapon)
         self.enemy.use_item(weapon_index, self.player)
 
+    # Enemy use item
     def enemy_use_item(self):
-        consumables = [item for item in self.enemy.inventory if isinstance(item, i.Consumable)]
+        consumables = [item for item in self.enemy.inventory if isinstance(item, items.Consumable)]
         if not consumables:
             self.enemy_attack()
             return

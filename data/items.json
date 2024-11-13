@@ -7,6 +7,7 @@
             "effect": "Damage",
             "critical": 5
         },
+
         "sword": {
             "name": "Sword",
             "description": "A short sword with a sharp",
@@ -14,12 +15,22 @@
             "effect": "Damage",
             "critical": 10
         },
+
         "axe": {
             "name": "Axe",
             "description": "A small axe",
             "value": 20,
             "effect": "Damage",
             "critical": 15
+        },
+
+        "dragonslayer":
+        {
+            "name": "DragonSlayer",
+            "description": "A sword that only a warrior can use.",
+            "value": 30,
+            "effect": "Damage",
+            "critical": 20
         }
     },
 
@@ -27,17 +38,29 @@
         "health_potion": {
             "name": "HealthPotion",
             "description": "A small health potion",
+            "value": 3,
+            "effect": "Healing"
+        },
+
+        "big_health_potion": {
+            "name": "BigHealthPotion",
+            "description": "A big health potion",
             "value": 10,
             "effect": "Healing"
-        }
-    },
+        },
 
-    "scrolls": {
-        "map_scroll": {
-            "name": "MapScroll",
-            "description": "Print the map",
-            "value": 0,
-            "effect": "Map"
+        "attack_potion": {
+            "name": "AttackPotion",
+            "description": "Boost the damage.",
+            "value": 3,
+            "effect": "Damage"
+        },
+
+        "defense_potion": {
+            "name": "DamagePotion",
+            "description": "Boost the defense.",
+            "value": 3,
+            "effect": "Damage"
         }
     }
 }

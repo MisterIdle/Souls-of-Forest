@@ -1,45 +1,67 @@
 {
-    "Shop": {
-        "name": "Mystic Goods",
+    "GoblinShop": {
+        "name": "Goblin Shop",
         "description": "A mystical shop full of wonders.",
         "items": [
             {
                 "name": "Knife",
-                "price": 10
+                "price": 2
             },
             {
                 "name": "Sword",
-                "price": 25
+                "price": 5
             },
             {
                 "name": "Axe",
-                "price": 40
+                "price": 10
             },
             {
                 "name": "HealthPotion",
-                "price": 15
-            },
-            {
-                "name": "MapScroll",
-                "price": 30
+                "price": 5
             }
         ]
     },
-    "Blacksmith": {
-        "name": "Blacksmith",
-        "description": "A blacksmith's shop.",
+    "TavernShop": {
+        "name": "Tavern",
+        "description": "A place to rest and recover.",
         "items": [
             {
-                "name": "Knife",
-                "price": 10
+                "name": "HealthPotion",
+                "price": 3
             },
             {
-                "name": "Sword",
-                "price": 25
+                "name": "BigHealthPotion",
+                "price": 7
             },
             {
-                "name": "Axe",
-                "price": 40
+                "name": "AttackPotion",
+                "price": 7
+            },
+            {
+                "name": "DefensePotion",
+                "price": 7
+            }
+        ]
+    },
+    "TraitorShop": {
+        "name": "Traitor",
+        "description": "A strange goblin with rare items.",
+        "items": [
+            {
+                "name": "BigHealthPotion",
+                "price": 4
+            },
+            {
+                "name": "AttackPotion",
+                "price": 4
+            },
+            {
+                "name": "DefensePotion",
+                "price": 4
+            },
+            {
+                "name": "DragonSlayer",
+                "price": 30
             }
         ]
     }

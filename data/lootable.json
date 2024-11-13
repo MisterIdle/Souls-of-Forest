@@ -11,11 +11,84 @@
             }
         ]
     },
+
     "loot_slime": {
         "items": [
             {
                 "name": "HealthPotion",
+                "quantity": 2
+            }
+        ]
+    },
+
+    "loot_big_slime": {
+        "items": [
+            {
+                "name": "BigHealthPotion",
+                "quantity": 2
+            }
+        ]
+    },
+
+    "loot_goblin": {
+        "items": [
+            {
+                "name": "HealthPotion",
                 "quantity": 1
+            },
+            {
+                "name": "AttackPotion",
+                "quantity": 1
+            },
+            {
+                "name": "DefensePotion",
+                "quantity": 1
+            }
+        ]
+    },
+
+    "loot_guard_goblin": {
+        "items": [
+            {
+                "name": "Sword",
+                "quantity": 1
+            },
+            {
+                "name": "HealthPotion",
+                "quantity": 4
+            },
+            {
+                "name": "AttackPotion",
+                "quantity": 2
+            },
+            {
+                "name": "DefensePotion",
+                "quantity": 2
+            }
+        ]
+    },
+
+    "loot_king_goblin": {
+        "items": [
+            {
+                "name": "Axe",
+                "quantity": 1
+            },
+            {
+                "name": "HealthPotion",
+                "quantity": 3
+            },
+            {
+                "name": "BigHealthPotion",
+                "quantity": 1
+            },
+            {
+                "name": "AttackPotion",
+                "quantity": 2
+            },
+            {
+                "name": "DefensePotion",
+                "quantity": 3
             }
         ]
     }

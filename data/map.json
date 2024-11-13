@@ -41,14 +41,30 @@
         "entities": [
             {
                 "name": "Slime",
-                "position": [2, 3],
+                "position": [1, 3],
+                "quantity": 1
+            },
+            {
+                "name": "Slime",
+                "position": [3, 2],
+                "quantity": 1
+            },
+            {
+                "name": "Mage",
+                "position": [6, 1],
                 "quantity": 1
             }
+            
         ],
         "items": [
             {
                 "name": "Sword",
                 "position": [4, 0],
+                "quantity": 1
+            },
+            {
+                "name": "HealthPotion",
+                "position": [3, 4],
                 "quantity": 1
             }
         ],
@@ -84,8 +100,38 @@
             [" ", " ", " ", "P", " "]
         ],
         "entities": [
+            {
+                "name": "Slime",
+                "position": [3, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Slime",
+                "position": [2, 3],
+                "quantity": 1
+            },
+            {
+                "name": "BigSlime",
+                "position": [0, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [1, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [1, 3],
+                "quantity": 1
+            }
         ],
         "items": [
+            {
+                "name": "HealthPotion",
+                "position": [0, 3],
+                "quantity": 1
+            }
         ],
         "teleporters": [
             {
@@ -116,8 +162,28 @@
             [" ", "G", "G", "G", " "]
         ],
         "entities": [
+            {
+                "name": "Goblin",
+                "position": [0, 3],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [1, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [2, 1],
+                "quantity": 1
+            }
         ],
         "items": [
+            {
+                "name": "HealthPotion",
+                "position": [2, 3],
+                "quantity": 1
+            }
         ],
         "teleporters": [
             {
@@ -127,6 +193,10 @@
             }
         ],
         "shops": [
+            {
+                "position": [1, 0],
+                "name": "GoblinShop"
+            }
         ]
     },
 
@@ -140,6 +210,11 @@
         "entities": [
         ],
         "items": [
+            {
+                "name": "HealthPotion",
+                "position": [1, 1],
+                "quantity": 1
+            }
         ],
         "teleporters": [
             {
@@ -177,6 +252,16 @@
             ["C", "C", " "]
         ],
         "entities": [
+            {
+                "name": "GuardGoblin",
+                "position": [1, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [3, 1],
+                "quantity": 1
+            }
         ],
         "items": [
         ],
@@ -206,12 +291,31 @@
             [" ", "C", "C"]
         ],
         "entities": [
+            {
+                "name": "GuardGoblin",
+                "position": [2, 1],
+                "quantity": 1
+            },
+            {
+                "name": "Goblin",
+                "position": [0, 2],
+                "quantity": 1
+            }
         ],
         "items": [
         ],
         "teleporters": [
+            {
+                "position": [2, 0],
+                "destination": "DarkCaveEntrance",
+                "destination_coords": [1, 2]
+            }
         ],
         "shops": [
+            {
+                "position": [2, 2],
+                "name": "TavernShop"
+            }
         ]
     },
 
@@ -224,6 +328,11 @@
             [" ", "C", "C", "C", " "]
         ],
         "entities": [
+            {
+                "name": "GuardGoblin",
+                "position": [2, 1],
+                "quantity": 1
+            }
         ],
         "items": [
         ],
@@ -256,6 +365,11 @@
             [" ", "C", "C", " "]
         ],
         "entities": [
+            {
+                "name": "GuardGoblin",
+                "position": [1, 1],
+                "quantity": 1
+            }
         ],
         "items": [
         ],
@@ -267,6 +381,10 @@
             }
         ],
         "shops": [
+            {
+                "position": [1, 0],
+                "name": "TraitorShop"
+            }
         ]
     },
 
@@ -280,8 +398,18 @@
             [" ", "C", " "]
         ],
         "entities": [
+            {
+                "name": "KingGoblin",
+                "position": [1, 1],
+                "quantity": 1
+            }
         ],
         "items": [
+            {
+                "name": "HealthPotion",
+                "position": [0, 1],
+                "quantity": 1
+            }
         ],
         "teleporters": [
             {
@@ -307,11 +435,16 @@
     "DarkCaveDragon": {
         "name": "A Dragon's Lair, with a sleeping dragon.",
         "tiles": [
-            [" ", "R", "R", " "],
-            ["R", "R", "R", "C"],
-            [" ", "R", "R", " "]
+            [" ", "R", "R"],
+            ["R", "R", "R"],
+            [" ", "R", "R"]
         ],
         "entities": [
+            {
+                "name": "Dragon",
+                "position": [1, 2],
+                "quantity": 1
+            }
         ],
         "items": [
         ],
