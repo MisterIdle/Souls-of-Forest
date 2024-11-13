@@ -86,7 +86,9 @@ class Entity:
                     u.wait()
 
     def load_inventory_from_save(self):
+        print("Loading inventory from save...")
         self.inventory = [i.get_class_from_name(item_data["name"])() for item_data in self.inventory]
+        u.wait()
 
     def print_inventory(self, show_type=None):
         print(f"Inventory ({len(self.inventory)}/{self.max_inventory}):")
@@ -234,14 +236,13 @@ class Player(Entity):
             self.position = new_position
             print(f"Player moves to {new_position}")
             game_map.check_for_entity_collision(self.position)
+            game_map.check_for_entity_collision_around(self.position)
             game_map.check_for_teleporter(self.position)
             game_map.check_for_shop(new_position)
         else:
             print("Invalid move, try again.")
 
     def inventory_full(self):
-        print("Inventory is full.")
-        u.wait()
         return len(self.inventory) >= self.max_inventory
 
     def see_items_on_tile(self):
@@ -268,6 +269,8 @@ class Player(Entity):
     # Inventory
     def pick_up_item(self, indices):
         if self.inventory_full():
+            print("Inventory is full.")
+            u.wait()
             return
         
         if isinstance(indices, str):

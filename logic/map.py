@@ -160,17 +160,28 @@ class Map:
         else:
             print(f"Entity {entity.name} not found at tile {entity.position}.")
 
-
     def check_for_entity_collision(self, player_position):
         if player_position in self.entities:
             entities_at_position = self.entities[player_position]
             for entity in entities_at_position:
-
-                save = s.Save()
-                save.save_game(l.explored_maps, l.player, l.player.name + "_fight")
-
                 combat = c.Combat(l.player, entity, l.game_map)
                 combat.start_combat()
+
+
+    def check_for_entity_collision_around(self, player_position):
+        x, y = player_position
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if i == 0 and j == 0:
+                    continue
+
+                position = (x + i, y + j)
+
+                if position in self.entities:
+                    entities_at_position = self.entities[position]
+                    for entity in entities_at_position:
+                        save = s.Save()
+                        save.save_game(l.explored_maps, l.player, l.player.name + "_autosave")
 
 
     def check_for_teleporter(self, player_position):
