@@ -401,7 +401,7 @@ class Player(Entity):
         if choice in ["restart", "r"]:
             l.continue_game()
         elif choice in ["exit", "e"]:
-            l.exit_game()
+            quit()
 
     # Display experience bar
     def xp_to_next_level(self):
