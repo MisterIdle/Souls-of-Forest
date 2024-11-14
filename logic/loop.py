@@ -88,7 +88,7 @@ def set_player_name():
 
 # Intro
 def intro():
-    utils.print_dialogue("Narrator", "intro")
+    utils.print_dialogue("Narrator", "intro1")
     utils.print_dialogue("Narrator", "intro2")
     utils.print_dialogue("Narrator", "intro3")
     utils.print_dialogue("Narrator", "intro4")

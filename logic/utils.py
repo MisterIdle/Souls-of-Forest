@@ -1,7 +1,7 @@
 import os
 import json
 import time
-import threading as t
+import msvcrt as inp
 
 # Main variables for the game
 max_width = 50
@@ -60,36 +60,30 @@ def load_ascii_image(filename, centered=False):
         print(f"Error decoding the file '{filename}.txt'. Ensure the file is in UTF-8 encoding.")
 
 # Print dialogue with character and line
-def on_enter():
-    global skip_animation
-    input()
-    skip_animation = True
-
-# Print dialogue with character and line
 def print_dialogue(character, line, speed=0.05):
     global skip_animation
-    if dialogue_data and character.capitalize() in dialogue_data and line in dialogue_data[character.capitalize()]:
-        clear_screen()
-        load_ascii_image(character)
-        text = dialogue_data[character.capitalize()][line]
+    clear_screen()
+    load_ascii_image(character.lower(), centered=True)
 
-        t.Thread(target=on_enter, daemon=True).start()
+    text = dialogue_data[character.capitalize()][line]
+    full_text_displayed = False
 
-        for char in text:
-            if skip_animation:
-                clear_screen()
-                load_ascii_image(character)
-                print(text, end='', flush=True)
-                print()
-                break
+    for letter in text:
+        if inp.kbhit() and inp.getch() == b'\r':
+            clear_screen()
+            load_ascii_image(character.lower(), centered=True)
+            print(text)
+            full_text_displayed = True
+            break
+        print(letter, end='', flush=True)
+        time.sleep(speed)
+    
+    if not full_text_displayed:
+        print()
+    
+    wait()
+    clear_screen()
 
-            print(char, end='', flush=True)
-            time.sleep(speed)
-
-        wait()
-        skip_animation = False
-    else:
-        print(f"Error: Dialogue for {character} '{line}' not found.")
 
 # Wait for player to press Enter
 def wait():
