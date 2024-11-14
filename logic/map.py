@@ -1,8 +1,8 @@
 import logic.entities as e
-import logic.items as items
-import logic.utils as utils
-import logic.combat as combat
-import logic.loop as loop
+import logic.items as i
+import logic.utils as u
+import logic.combat as c
+import logic.loop as l
 import logic.save as s
 import logic.shop as sh
 
@@ -89,10 +89,10 @@ class Map:
         
         self.current_map = new_map
         self.current_map_name = map_name
-        loop.player.position = player_position
+        l.player.position = player_position
 
         print(f"Player has been teleported to {map_name} at {player_position}.")
-        loop.game_map = new_map
+        l.game_map = new_map
 
     # Create map
     def create_map(self):
@@ -123,7 +123,7 @@ class Map:
         for item_data in self.map_data['items']:
             item_name = item_data['name']
             item_position = tuple(item_data['position'])
-            item_class = items.get_class_from_name(item_name)
+            item_class = i.get_class_from_name(item_name)
 
             if item_position not in tile_items:
                 tile_items[item_position] = []
@@ -158,8 +158,8 @@ class Map:
 
     # Load all maps
     def load_all_maps():
-        for map_name, map_data in utils.map_data.items():
-            tiles_data = utils.tiles_data
+        for map_name, map_data in u.map_data.items():
+            tiles_data = u.tiles_data
             map_instance = Map(map_data, tiles_data, map_name)
             Map.all_maps[map_name] = map_instance
             print(f"Map {map_name} loaded.")
@@ -181,7 +181,7 @@ class Map:
         if player_position in self.entities:
             entities_at_position = self.entities[player_position]
             for entity in entities_at_position:
-                comb = combat.Combat(loop.player, entity, loop.game_map)
+                comb = c.Combat(l.player, entity, l.game_map)
                 comb.start_combat()
 
     # Get current map
@@ -198,7 +198,7 @@ class Map:
                     entities_at_position = self.entities[position]
                     for entity in entities_at_position:
                         save = s.Save()
-                        save.save_game(loop.explored_maps, loop.player, loop.player.name + "_autosave")
+                        save.save_game(l.explored_maps, l.player, l.player.name + "_autosave")
 
     # Get current map
     def check_for_teleporter(self, player_position):
@@ -210,7 +210,7 @@ class Map:
             print(f"Teleporting to {destination_map_name} at {destination_coords}.")
             self.load_new_map(destination_map_name, destination_coords)
 
-            loop.explored_maps[self.current_map_name] = self.current_map
+            l.explored_maps[self.current_map_name] = self.current_map
 
     # Get current map
     def show_items_on_tile(self, player_position):
@@ -222,7 +222,7 @@ class Map:
     # Get current map
     def check_for_shop(self, player_position):
         if player_position in self.tile_shop:
-            shop_data = utils.shop_data[self.tile_shop[player_position]["name"]]
+            shop_data = u.shop_data[self.tile_shop[player_position]["name"]]
             shop_instance = sh.Shop(shop_data)
             shop_instance.open_shop()
 
@@ -255,7 +255,7 @@ class Map:
             for y, tile_symbol in enumerate(row):
                 position = (x, y)
                 if position == player_position:
-                    print(utils.entities_data["player"]["symbol"], end=" ")
+                    print(u.entities_data["player"]["symbol"], end=" ")
                 elif position in self.items and self.items[position]:
                     print("L", end=" ")
                 elif position in self.teleporters:
@@ -272,27 +272,27 @@ class Map:
     def map_display_spell(self, game_map, player_position):
         radius = 3
         x, y = player_position
-        utils.line()
+        u.line()
 
         for i, row in enumerate(game_map.map):
             for j, tile_symbol in enumerate(row):
                 if abs(i - x) + abs(j - y) <= radius:
                     position = (i, j)
                     if position == player_position:
-                        print(utils.entities_data["player"]["symbol"], end=" ")
+                        print(u.entities_data["player"]["symbol"], end=" ")
                     else:
                         print(tile_symbol, end=" ")
                 else:
                     print(" ", end=" ")
             print()
-        utils.line()
+        u.line()
 
         print("Legend:")
         print("Player: @")
         for symbol, tile_data in game_map.tiles_data.items():
             print(f"{symbol}: {tile_data['name']}")
 
-        utils.wait()
+        u.wait()
 
     # Map compass
     def map_compass(self, player_position):
@@ -313,34 +313,34 @@ class Map:
                 if position in self.teleporters:
                     teleporter = self.teleporters[position]
                     destination = teleporter["destination"]
-                    destination_name = utils.map_data[destination]["name"]
+                    destination_name = u.map_data[destination]["name"]
                     directions_info[direction] = destination_name
                 else:
                     directions_info[direction] = tile_data["name"]
             else:
                 directions_info[direction] = "Obstacle"
         
-        utils.line()
-        utils.print_centered(f"=== Zone ===")
-        utils.line()
+        u.line()
+        u.print_centered(f"=== Zone ===")
+        u.line()
         destination = self.get_map_name()
-        utils.print_centered("Map: " + utils.map_data[destination]["name"])
-        utils.print_centered("Zone: " + self.get_tile_name(player_position))
-        utils.print_centered("Description: " + self.get_tile_description(player_position))
-        utils.print_centered("Player Position: " + str(player_position))
-        utils.line()
+        u.print_centered("Map: " + u.map_data[destination]["name"])
+        u.print_centered("Zone: " + self.get_tile_name(player_position))
+        u.print_centered("Description: " + self.get_tile_description(player_position))
+        u.print_centered("Player Position: " + str(player_position))
+        u.line()
         print()
         print()
-        utils.line()
-        utils.print_centered("=== Compass ===")
-        utils.line()
-        utils.print_centered(f"North")
-        utils.print_centered(directions_info["North"])
-        utils.print_both("West", "East")
-        utils.print_both(directions_info["West"], directions_info["East"])
-        utils.print_centered("South")
-        utils.print_centered(directions_info["South"])
-        utils.line()
+        u.line()
+        u.print_centered("=== Compass ===")
+        u.line()
+        u.print_centered(f"North")
+        u.print_centered(directions_info["North"])
+        u.print_both("West", "East")
+        u.print_both(directions_info["West"], directions_info["East"])
+        u.print_centered("South")
+        u.print_centered(directions_info["South"])
+        u.line()
         print()
         print()
             

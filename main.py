@@ -1,7 +1,7 @@
-import logic.loop as gameloop
+import logic.loop as gl
 
 def main():
-    gameloop.main_menu()
+    gl.main_menu()
 
 if __name__ == "__main__":
     main()

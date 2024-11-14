@@ -1,10 +1,9 @@
 import os
 import json
 import logic.entities as e
-import logic.utils as utils
+import logic.utils as u
 import logic.map as m
-import logic.loop as loop
-import logic.items as items
+import logic.loop as l
 
 # Save class to handle saving and loading game data
 class Save:
@@ -78,11 +77,11 @@ class Save:
         print("Player loaded")
 
         explored_maps = {
-            map_name: m.Map(map_data=map_data, tiles_data=utils.tiles_data, map_name=map_name)
+            map_name: m.Map(map_data=map_data, tiles_data=u.tiles_data, map_name=map_name)
             for map_name, map_data in data["explored_maps"].items()
         }
 
-        loop.game_map = explored_maps[player.current_map]
+        l.game_map = explored_maps[player.current_map]
         print("Maps loaded")
 
         return explored_maps, player

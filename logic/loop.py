@@ -1,5 +1,5 @@
 import logic.map as m
-import logic.utils as utils
+import logic.utils as u
 import logic.entities as e
 import logic.save as s
 import msvcrt as inp
@@ -14,8 +14,8 @@ use_input = False
 
 # Main menu
 def main_menu():
-    utils.clear_screen()
-    utils.load_ascii_image("logo")
+    u.clear_screen()
+    u.load_ascii_image("logo")
     print("=== Main Menu ===")
     print("[1] Start game")
     print("[2] Continue")
@@ -37,7 +37,7 @@ def main_menu():
 
 # New game
 def new_game():
-    utils.clear_screen()
+    u.clear_screen()
     print("Starting new game")
     global game_map, player, explored_maps
     
@@ -50,7 +50,7 @@ def new_game():
     print("Map loaded")
     load_all()
 
-    utils.clear_screen()
+    u.clear_screen()
     ambience()
     set_player_name()
     intro()
@@ -63,7 +63,7 @@ def load_maps():
 # Load all
 def load_all():
     global player
-    player = e.Player(utils.entities_data["player"])
+    player = e.Player(u.entities_data["player"])
     global explored_maps
     explored_maps["Tutorial"] = game_map
 
@@ -72,31 +72,31 @@ def ambience():
     print("Hello, type in Spotify or other")
     print("    'Medieval ambience' ")
     print("Good luck on your adventure ;)")
-    utils.wait()
-    utils.clear_screen()
+    u.wait()
+    u.clear_screen()
 
 # Set player name
 def set_player_name():
     player.name = input("Enter player name: ")
     if not player.name:
-        utils.clear_screen()
+        u.clear_screen()
         print("Please enter a valid name")
         set_player_name()
 
-    utils.clear_screen()
+    u.clear_screen()
     t.sleep(1)
 
 # Intro
 def intro():
-    utils.print_dialogue("Narrator", "intro1")
-    utils.print_dialogue("Narrator", "intro2")
-    utils.print_dialogue("Narrator", "intro3")
-    utils.print_dialogue("Narrator", "intro4")
-    utils.print_dialogue("Narrator", "intro5")
-    utils.print_dialogue("Narrator", "intro6")
-    utils.print_dialogue("Narrator", "intro7")
-    utils.print_dialogue("Narrator", "intro8")
-    utils.print_dialogue("Narrator", "intro9")
+    u.print_dialogue("Narrator", "intro1")
+    u.print_dialogue("Narrator", "intro2")
+    u.print_dialogue("Narrator", "intro3")
+    u.print_dialogue("Narrator", "intro4")
+    u.print_dialogue("Narrator", "intro5")
+    u.print_dialogue("Narrator", "intro6")
+    u.print_dialogue("Narrator", "intro7")
+    u.print_dialogue("Narrator", "intro8")
+    u.print_dialogue("Narrator", "intro9")
 
 # Continue game
 def continue_game():
@@ -119,7 +119,7 @@ def continue_game():
                     game_loop()
                 else:
                     print("Error loading game")
-                    utils.wait()
+                    u.wait()
                     main_menu()
             elif confirmed in ["n", "no"]:
                 main_menu()
@@ -147,7 +147,7 @@ def delete_save():
             confirm = input(f"Are you sure you want to delete {save_files[int(save_number) - 1]}? [Y/N] ").strip().lower()
             if confirm in ["y", "yes"]:
                 save.delete_save(save_files[int(save_number) - 1])
-                utils.wait()
+                u.wait()
                 main_menu()
             elif confirm in ["n", "no"]:
                 main_menu()
@@ -177,7 +177,7 @@ def exit_game():
 # Game loop
 def game_loop():
     global explored_maps
-    utils.clear_screen()
+    u.clear_screen()
     display_game_map()
     display_player_stats()
     display_controls()
@@ -204,19 +204,19 @@ def game_loop():
 
 # Display player stats
 def display_player_stats():
-    utils.line()
-    utils.print_centered("=== Player Stats ===")
-    utils.line()
+    u.line()
+    u.print_centered("=== Player Stats ===")
+    u.line()
     player.print_stats()
     player.xp_to_next_level()
-    utils.line()
+    u.line()
     print()
 
 # Display game map
 def display_game_map():
     print()
     player.current_map = game_map.map_name
-    utils.load_ascii_image(game_map.get_tile_name(player.position), centered=True)
+    u.load_ascii_image(game_map.get_tile_name(player.position), centered=True)
     print()
     game_map.map_compass(player.position)
     game_map.show_items_on_tile(player.position)
@@ -229,7 +229,7 @@ def display_controls():
 # Console mode
 def console_mode():
     print("You are in the console")
-    utils.wait()
+    u.wait()
 
 # Open bag
 def open_bag():
@@ -280,7 +280,7 @@ def save_game():
     print(f"Saving game as {save_name}")
     save.save_game(explored_maps, player, save_name)
     print("Game saved")
-    utils.wait()
+    u.wait()
     game_loop()
 
 # Handle exit

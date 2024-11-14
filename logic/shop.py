@@ -1,6 +1,6 @@
-import logic.utils as utils
-import logic.items as items
-import logic.loop as loop
+import logic.utils as u
+import logic.items as i
+import logic.loop as l
 
 # Shop class to handle shop interactions
 class Shop:
@@ -13,16 +13,16 @@ class Shop:
     def init_loot(self):
         for item in self.shop_data["items"]:
             name_item = item["name"]
-            item_class = items.get_class_from_name(name_item)
+            item_class = i.get_class_from_name(name_item)
             self.items.append(item_class())
 
     # Display shop header
     def display_shop_header(self):
-        utils.clear_screen()
-        utils.load_ascii_image("shop")
+        u.clear_screen()
+        u.load_ascii_image("shop")
         print(f"=== Shop: {self.shop_data['name']} ===")
-        print(f"Gold: {loop.player.gold}")
-        print(f"Bag: {len(loop.player.inventory)}/{loop.player.max_inventory}")
+        print(f"Gold: {l.player.gold}")
+        print(f"Bag: {len(l.player.inventory)}/{l.player.max_inventory}")
 
     # Print shop items
     def print_items(self):
@@ -30,7 +30,7 @@ class Shop:
         for index, item in enumerate(self.items):
             print(f"{index + 1}. {item.name}")
             print(f"   {item.effect}: {item.value}")
-            if isinstance(item, items.Weapon):
+            if isinstance(item, i.Weapon):
                 print(f"   Critical: {item.critical}%")
             print(f"   Buy: {item.value} / Sell: {item.value // 2} gold")
             print()
@@ -51,13 +51,13 @@ class Shop:
             elif choice in ["sell", "s"]:
                 self.handle_sell()
             elif choice in ["bag", "inventory", "i"]:
-                loop.player.print_inventory()
-                utils.wait()
+                l.player.print_inventory()
+                u.wait()
             elif choice in ["exit", "back"]:
                 break
             else:
                 print("Invalid choice.")
-                utils.wait()
+                u.wait()
 
     # Handle buy item
     def handle_buy(self):
@@ -68,33 +68,33 @@ class Shop:
                 item = self.items[item_index]
                 confirm = input(f"Buy {item.name} for {item.value} gold? [y/n]: ").lower()
                 if confirm == "y":
-                    self.buy_item(loop.player, item_index)
+                    self.buy_item(l.player, item_index)
                 else:
                     print("Transaction cancelled.")
             else:
                 print("Invalid item number.")
         else:
             print("Please enter a valid number.")
-        utils.wait()
+        u.wait()
 
     # Handle sell item
     def handle_sell(self):
-        loop.player.print_inventory()
+        l.player.print_inventory()
         choice_sell = input("Enter the number of the item you want to sell: ")
         if choice_sell.isdigit():
             item_index = int(choice_sell) - 1
-            if 0 <= item_index < len(loop.player.inventory):
-                item = loop.player.inventory[item_index]
+            if 0 <= item_index < len(l.player.inventory):
+                item = l.player.inventory[item_index]
                 confirm = input(f"Sell {item.name} for {item.value // 2} gold? [y/n]: ").lower()
                 if confirm == "y":
-                    self.sell_item(loop.player, item_index)
+                    self.sell_item(l.player, item_index)
                 else:
                     print("Transaction cancelled.")
             else:
                 print("Invalid item number.")
         else:
             print("Please enter a valid number.")
-        utils.wait()
+        u.wait()
 
     # Buy item
     def buy_item(self, entity, item_index):
@@ -107,7 +107,7 @@ class Shop:
             entity.gold -= item.value
             entity.inventory.append(item)
             print(f"{entity.name} bought {item.name} for {item.value} gold.")
-        utils.wait()
+        u.wait()
 
     # Sell item
     def sell_item(self, entity, item_index):
@@ -116,4 +116,4 @@ class Shop:
         entity.gold += sell_value
         entity.inventory.pop(item_index)
         print(f"{entity.name} sold {item.name} for {sell_value} gold.")
-        utils.wait()
+        u.wait()

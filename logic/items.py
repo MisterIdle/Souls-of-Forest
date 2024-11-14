@@ -1,5 +1,5 @@
 import random
-import logic.utils as utils
+import logic.utils as u
 
 ## ITEM CLASS ##
 class Item:
@@ -61,22 +61,22 @@ class Weapon(Item):
 ## WEAPONS ##
 class Knife(Weapon):
     def __init__(self):
-        knife_data = utils.items_data["weapons"]["knife"]
+        knife_data = u.items_data["weapons"]["knife"]
         super().__init__(knife_data)
 
 class Sword(Weapon):
     def __init__(self):
-        sword_data = utils.items_data["weapons"]["sword"]
+        sword_data = u.items_data["weapons"]["sword"]
         super().__init__(sword_data)
 
 class Axe(Weapon):
     def __init__(self):
-        axe_data = utils.items_data["weapons"]["axe"]
+        axe_data = u.items_data["weapons"]["axe"]
         super().__init__(axe_data)
 
 class DragonSlayer(Weapon):
     def __init__(self):
-        dragon_slayer_data = utils.items_data["weapons"]["dragonslayer"]
+        dragon_slayer_data = u.items_data["weapons"]["dragonslayer"]
         super().__init__(dragon_slayer_data)
 
 ## CONSUMABLES ##
@@ -95,7 +95,7 @@ class Consumable(Item):
 ## POTIONS ##
 class HealthPotion(Consumable):
     def __init__(self):
-        health_potion_data = utils.items_data["consumables"]["health_potion"]
+        health_potion_data = u.items_data["consumables"]["health_potion"]
         super().__init__(health_potion_data)
 
     def use(self, entity):
@@ -109,7 +109,7 @@ class HealthPotion(Consumable):
 
 class BigHealthPotion(Consumable):
     def __init__(self):
-        big_health_potion_data = utils.items_data["consumables"]["big_health_potion"]
+        big_health_potion_data = u.items_data["consumables"]["big_health_potion"]
         super().__init__(big_health_potion_data)
 
     def use(self, entity):
@@ -123,7 +123,7 @@ class BigHealthPotion(Consumable):
 
 class AttackPotion(Consumable):
     def __init__(self):
-        strength_potion_data = utils.items_data["consumables"]["attack_potion"]
+        strength_potion_data = u.items_data["consumables"]["attack_potion"]
         super().__init__(strength_potion_data)
 
     def use(self, entity):
@@ -132,7 +132,7 @@ class AttackPotion(Consumable):
 
 class DefensePotion(Consumable):
     def __init__(self):
-        defense_potion_data = utils.items_data["consumables"]["defense_potion"]
+        defense_potion_data = u.items_data["consumables"]["defense_potion"]
         super().__init__(defense_potion_data)
 
     def use(self, entity):

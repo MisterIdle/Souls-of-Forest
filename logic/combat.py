@@ -1,6 +1,6 @@
-import logic.items as items
-import logic.utils as utils
-import logic.loop as loop
+import logic.items as i
+import logic.utils as u
+import logic.loop as l
 import random
 
 # Combat class to handle combat between player and enemy
@@ -30,13 +30,13 @@ class Combat:
 
     # Display header with player and enemy stats
     def header(self):
-        utils.clear_screen()
+        u.clear_screen()
         print()
-        utils.load_ascii_image(self.enemy.name, centered=True)
+        u.load_ascii_image(self.enemy.name, centered=True)
         print()
         self.enemy.print_stats()
         print()
-        utils.line()
+        u.line()
         print()
         self.player.print_stats()
     
@@ -54,9 +54,9 @@ class Combat:
         elif choice in ["run", "r"]:
             if random.randint(1, 100) <= 50:
                 print("You ran away successfully.")
-                loop.player.position = loop.player.last_position
-                utils.wait()
-                loop.game_loop()
+                l.player.position = l.player.last_position
+                u.wait()
+                l.game_loop()
             else:
                 print("You failed to run away.")
         else:
@@ -65,7 +65,7 @@ class Combat:
 
     # Execute player attack
     def execute_attack(self, attacker, target):
-        weapons = [item for item in attacker.inventory if isinstance(item, items.Weapon)]
+        weapons = [item for item in attacker.inventory if isinstance(item, i.Weapon)]
         if not weapons:
             damage = attacker.attack / target.defense
             target.take_damage(damage)
@@ -93,7 +93,7 @@ class Combat:
 
     # Execute player use item  
     def execute_use(self, entity):
-        consumables = [item for item in entity.inventory if isinstance(item, items.Consumable)]
+        consumables = [item for item in entity.inventory if isinstance(item, i.Consumable)]
         if not consumables:
             print("No consumables in your inventory.")
             self.player_turn()
@@ -122,7 +122,7 @@ class Combat:
         self.header()
         if self.enemy.health <= 0:
             self.player.win_combat(self.enemy)
-            utils.clear_screen()
+            u.clear_screen()
             return
 
         print("\n== Enemy turn ==")
@@ -130,11 +130,11 @@ class Combat:
             self.enemy_use_item()
         else:
             self.enemy_attack()
-        utils.wait()
+        u.wait()
 
     # Enemy attack player
     def enemy_attack(self):
-        weapons = [item for item in self.enemy.inventory if isinstance(item, items.Weapon)]
+        weapons = [item for item in self.enemy.inventory if isinstance(item, i.Weapon)]
         if not weapons:
             damage = self.enemy.attack / self.player.defense
             self.player.take_damage(damage)
@@ -147,7 +147,7 @@ class Combat:
 
     # Enemy use item
     def enemy_use_item(self):
-        consumables = [item for item in self.enemy.inventory if isinstance(item, items.Consumable)]
+        consumables = [item for item in self.enemy.inventory if isinstance(item, i.Consumable)]
         if not consumables:
             self.enemy_attack()
             return
